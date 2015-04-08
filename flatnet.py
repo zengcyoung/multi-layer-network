@@ -2,6 +2,9 @@
 
 import csv
 import sys
+import MessageType
+
+gReverseLimit = 100
 
 def CommandParse():
     files = {}
@@ -39,7 +42,7 @@ def ReadEdgeListCSV(fileName, delimiter = '\t'):
     try:
         del(edgeList['Source'])
     except:
-        print('Warn: No "Source" node found')
+        MessageType.warn('No "Source" node found')
 
     return edgeList
 
@@ -69,9 +72,9 @@ def FlatNetwork(firstNet, secondNet, mapping, reverseMapping):
     for user in firstNet:
         flatNet[user] = []
         if not user in mapping:
-            print('Mapping reversing for {0}. Please check the order of the networks.'.format(user))
+            MessageType.warn('Mapping reversing for {0}. Please check the order of the networks.'.format(user))
             if not user in reverseMapping:
-                print('Reversing failed, exiting...')
+                MessageType.fatal('Reversing failed, exiting...')
                 exit()
             else:
                 secondName = reverseMapping[user]
@@ -86,7 +89,7 @@ def FlatNetwork(firstNet, secondNet, mapping, reverseMapping):
                 flatNet[user].append(friend)
 
         if not secondName in secondNet:
-            print("{} doesn't exist in the 2nd network!".format(secondName))
+            MessageType.warn("{} doesn't exist in the 2nd network!".format(secondName))
         else:
             for secondNetFriend in secondNet[secondName]:
                 if not secondNetFriend in reverseMapping:
@@ -105,8 +108,8 @@ def FlatNetworkVer2(firstNet, secondNet, mapping, reverseMapping):
     for testUser in mapping:
         if not testUser in firstNet:
             failCount = failCount + 1
-        if failCount > 3:
-            print('WARN: Over 3 users were not found in the first network, trying to reverse the mapping now...')
+        if failCount > gReverseLimit:
+            MessageType.warn('Over {0} users were not found in the first network, trying to reverse the mapping now...'.format(gReverseLimit))
             mapping, reverseMapping = reverseMapping, mapping
             baseNet, refNet = refNet, baseNet
 
@@ -115,56 +118,61 @@ def FlatNetworkVer2(firstNet, secondNet, mapping, reverseMapping):
             for retestUser in mapping:
                 if not retestUser in mapping:
                     refailCount = refailCount + 1
-                if refailCount > 3:
-                    print('FATAL: Reverse failed. Please check whether the node mapping is correct')
+                if refailCount > gReverseLimit:
+                    MessageType.fatal('Reverse failed. Please check whether the node mapping is correct')
                     exit()
 
-            print('IMPORTANT: Reverse successfully.')
+            MessageType.important('Reverse successfully.')
             break
 
     flatNet = {}
 
     # First time iterate
     for user in mapping:
-        print('\nCurrent user: {0}'.format(user))
+        MessageType.info('Current user: {0}'.format(user))
 
         if user in firstNet:
             if not user in flatNet:
                 flatNet[user] = []
 
-            print('    Friends: {0}'.format(firstNet[user]))
+            MessageType.info('    Friends: {0}'.format(firstNet[user]))
             flatNet[user].extend(firstNet[user])
         else:
-            print("WARN: {0} doesn't exist in the {1} network".format(user, baseNet))
+            MessageType.warn("{0} doesn't exist in the {1} network".format(user, baseNet))
 
         userAlterName = mapping[user]
-        print('Alternative name got: {0}'.format(userAlterName))
+        MessageType.info('    Alternative name got: {0}'.format(userAlterName))
 
         if userAlterName in secondNet:
             for friend in secondNet[userAlterName]:
-                print('    Travelling friend: {0}'.format(friend))
                 if friend in reverseMapping:
                     if not user in flatNet:
                         flatNet[user] = []
-                    flatNet[user].append(reverseMapping[friend])
+                    if user in firstNet:
+                        if not reverseMapping[friend] in firstNet[user]:
+                            MessageType.info('    New friend from another network: {0}'.format(friend))
+                            flatNet[user].append(reverseMapping[friend])
+                    else:
+                        flatNet[user].append(reverseMapping[friend])
+                        MessageType.info('    New friend from another network: {0}'.format(friend))
         else:
-            print("WARN: {0} doesn't exist in the {1} network as out node".format(user, refNet))
+            MessageType.warn("{0} doesn't exist in the {1} network as out node".format(user, refNet))
 
     return flatNet
 
 
 filePath, delimiter = CommandParse()
 
-print('Reading first network...') 
+MessageType.info('Reading first network...') 
 firstNetEdgeList = ReadEdgeListCSV(filePath['FirstNetFile'], delimiter)
 
-print('Reading second network...')
+MessageType.info('Reading second network...')
 secondNetEdgeList = ReadEdgeListCSV(filePath['SecondNetFile'], delimiter)
 
-print('Reading node mapping...')
+MessageType.info('Reading node mapping...')
 nodeMapping, reverseMapping = ReadMappingCSV(filePath['NodeMappingFile'], delimiter)
 
-print('Generating flat net...')
+MessageType.info('Generating flat net...')
 flatNet = FlatNetworkVer2(firstNetEdgeList, secondNetEdgeList, nodeMapping, reverseMapping)
 
 with open(filePath['OutputFile'], mode = 'w') as outCsv:
