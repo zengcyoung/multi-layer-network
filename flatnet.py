@@ -33,7 +33,10 @@ def ReadEdgeListCSV(fileName, delimiter = ','):
                 edgeList[row[0]] = []
             edgeList[row[0]].append(row[1])
 
-    del(edgeList['Source'])
+    try:
+        del(edgeList['Source'])
+    except:
+        print('Warn: No "Source" node found')
 
     return edgeList
 
