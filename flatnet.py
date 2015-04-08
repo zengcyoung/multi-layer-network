@@ -12,8 +12,8 @@ def CommandParse():
 
     delimiter = sys.argv[1]
     if len(delimiter) > 1:
-        if delmiter[1] == 't':
-            delmiter = '\t'
+        if delimiter[1] == 't':
+            delimiter = '\t'
 
     files['FirstNetFile'] = sys.argv[2]
     files['SecondNetFile'] = sys.argv[3]
