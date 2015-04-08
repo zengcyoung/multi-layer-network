@@ -1,16 +1,32 @@
 #!/usr/bin/python3
 
 import csv
+import sys
 
-def ReadEdgeListCSV(fileName):
+def CommandParse():
+    files = {}
+
+    if not len(sys.argv) == 6:
+        print('Usage: flatnet.py splitter firstnet.csv secnet.csv node mapping.csv outfile.csv')
+        exit()
+
+    delimiter = sys.argv[1]
+
+    files['FirstNetFile'] = sys.argv[2]
+    files['SecondNetFile'] = sys.argv[3]
+    files['NodeMappingFile'] = sys.argv[4]
+    files['OutputFile'] = sys.argv[5]
+
+    return files, delimiter
+
+def ReadEdgeListCSV(fileName, delimiter = ','):
     """
     Read edge list csv to a hash table.
-    The CSV file's splitter should be tab.
     """
     edgeList = {}
 
     with open(fileName, newline = '') as csvFile:
-        csvTable = csv.reader(csvFile, delimiter = '\t')
+        csvTable = csv.reader(csvFile, delimiter = delimiter)
 
         for row in csvTable:
             if not row[0] in edgeList:
@@ -21,14 +37,14 @@ def ReadEdgeListCSV(fileName):
 
     return edgeList
 
-def ReadMappingCSV(fileName):
+def ReadMappingCSV(fileName, delimiter = ','):
     """
     Read user mapping file from csv.
     """
     mapping = {}
 
     with open(fileName, newline = '') as csvFile:
-        csvTable = csv.reader(csvFile, delimiter = '\t')
+        csvTable = csv.reader(csvFile, delimiter = delimiter)
 
         for row in csvTable:
             mapping[row[0]] = row[1]
@@ -75,19 +91,21 @@ def FlatNetwork(firstNet, secondNet, mapping, reverseMapping):
 
     return flatNet
 
-print('Reading friendfeed network...') 
-friendfeed = ReadEdgeListCSV(r'F:\Programming\Graduation Project\friendfeednet.csv')
+filePath, delimiter = CommandParse()
 
-print('Reading twitter network...')
-twitter = ReadEdgeListCSV(r'F:\Programming\Graduation Project\twitternet.csv')
+print('Reading first network...') 
+firstNetEdgeList = ReadEdgeListCSV(filePath['FirstNetFile'], delimiter)
+
+print('Reading second network...')
+secondNetEdgeList = ReadEdgeListCSV(filePath['SecondNetFile'], delimiter)
 
 print('Reading node mapping...')
-nodeMapping, reverseMapping = ReadMappingCSV(r'F:\Programming\Graduation Project\usermapping.csv')
+nodeMapping, reverseMapping = ReadMappingCSV(filePath['NodeMappingFile'], delimiter)
 
 print('Generating flat net...')
-flat = FlatNetwork(friendfeed, twitter, nodeMapping, reverseMapping)
+flatNet = FlatNetwork(firstNetEdgeList, secondNetEdgeList, nodeMapping, reverseMapping)
 
-with open(r'F:\Programming\Graduation Project\flatnet.csv', mode = 'w') as outCsv:
-    for user in flat:
-        for friend in flat[user]:
+with open(filePath['OutputFile'], mode = 'w') as outCsv:
+    for user in flatNet:
+        for friend in flatNet[user]:
             print('{0},{1}'.format(user, friend), file = outCsv)
