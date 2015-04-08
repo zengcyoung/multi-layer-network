@@ -12,7 +12,7 @@ flatnet.py splitter firstnet.csv secnet.csv node mapping.csv outfile.csv
 
 ## Known Issue
 
--   **2015/04/08**:
+-   **2015/04/08(Fixed)**:
 
     -   **flatnet.py**:
 

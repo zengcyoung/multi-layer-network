@@ -7,10 +7,13 @@ def CommandParse():
     files = {}
 
     if not len(sys.argv) == 6:
-        print('Usage: flatnet.py splitter firstnet.csv secnet.csv node mapping.csv outfile.csv')
+        print('Usage: flatnet.py splitter firstnet.csv secnet.csv nodemapping.csv outfile.csv')
         exit()
 
     delimiter = sys.argv[1]
+    if len(delimiter) > 1:
+        if delmiter[1] == 't':
+            delmiter = '\t'
 
     files['FirstNetFile'] = sys.argv[2]
     files['SecondNetFile'] = sys.argv[3]
@@ -19,7 +22,7 @@ def CommandParse():
 
     return files, delimiter
 
-def ReadEdgeListCSV(fileName, delimiter = ','):
+def ReadEdgeListCSV(fileName, delimiter = '\t'):
     """
     Read edge list csv to a hash table.
     """
@@ -40,7 +43,7 @@ def ReadEdgeListCSV(fileName, delimiter = ','):
 
     return edgeList
 
-def ReadMappingCSV(fileName, delimiter = ','):
+def ReadMappingCSV(fileName, delimiter = '\t'):
     """
     Read user mapping file from csv.
     """
@@ -66,7 +69,7 @@ def FlatNetwork(firstNet, secondNet, mapping, reverseMapping):
     for user in firstNet:
         flatNet[user] = []
         if not user in mapping:
-            print('Mapping reversing for {0}'.format(user))
+            print('Mapping reversing for {0}. Please check the order of the networks.'.format(user))
             if not user in reverseMapping:
                 print('Reversing failed, exiting...')
                 exit()
@@ -94,6 +97,62 @@ def FlatNetwork(firstNet, secondNet, mapping, reverseMapping):
 
     return flatNet
 
+def FlatNetworkVer2(firstNet, secondNet, mapping, reverseMapping):
+    # Test whether is mapping is reversed
+    failCount = 0
+    baseNet = '1st'
+    refNet = '2nd'
+    for testUser in mapping:
+        if not testUser in firstNet:
+            failCount = failCount + 1
+        if failCount > 3:
+            print('WARN: Over 3 users were not found in the first network, trying to reverse the mapping now...')
+            mapping, reverseMapping = reverseMapping, mapping
+            baseNet, refNet = refNet, baseNet
+
+            refailCount = 0
+
+            for retestUser in mapping:
+                if not retestUser in mapping:
+                    refailCount = refailCount + 1
+                if refailCount > 3:
+                    print('FATAL: Reverse failed. Please check whether the node mapping is correct')
+                    exit()
+
+            print('IMPORTANT: Reverse successfully.')
+            break
+
+    flatNet = {}
+
+    # First time iterate
+    for user in mapping:
+        print('\nCurrent user: {0}'.format(user))
+
+        if user in firstNet:
+            if not user in flatNet:
+                flatNet[user] = []
+
+            print('    Friends: {0}'.format(firstNet[user]))
+            flatNet[user].extend(firstNet[user])
+        else:
+            print("WARN: {0} doesn't exist in the {1} network".format(user, baseNet))
+
+        userAlterName = mapping[user]
+        print('Alternative name got: {0}'.format(userAlterName))
+
+        if userAlterName in secondNet:
+            for friend in secondNet[userAlterName]:
+                print('    Travelling friend: {0}'.format(friend))
+                if friend in reverseMapping:
+                    if not user in flatNet:
+                        flatNet[user] = []
+                    flatNet[user].append(reverseMapping[friend])
+        else:
+            print("WARN: {0} doesn't exist in the {1} network as out node".format(user, refNet))
+
+    return flatNet
+
+
 filePath, delimiter = CommandParse()
 
 print('Reading first network...') 
@@ -106,7 +165,7 @@ print('Reading node mapping...')
 nodeMapping, reverseMapping = ReadMappingCSV(filePath['NodeMappingFile'], delimiter)
 
 print('Generating flat net...')
-flatNet = FlatNetwork(firstNetEdgeList, secondNetEdgeList, nodeMapping, reverseMapping)
+flatNet = FlatNetworkVer2(firstNetEdgeList, secondNetEdgeList, nodeMapping, reverseMapping)
 
 with open(filePath['OutputFile'], mode = 'w') as outCsv:
     for user in flatNet:
