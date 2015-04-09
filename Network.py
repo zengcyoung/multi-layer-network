@@ -1,31 +1,10 @@
 #!/usr/bin/python3
 
 import csv
-import sys
+import queue
 import MessageType
 
-gReverseLimit = 100
-
-def CommandParse():
-    files = {}
-
-    if not len(sys.argv) == 6:
-        print('Usage: flatnet.py splitter firstnet.csv secnet.csv nodemapping.csv outfile.csv')
-        exit()
-
-    delimiter = sys.argv[1]
-    if len(delimiter) > 1:
-        if delimiter[1] == 't':
-            delimiter = '\t'
-
-    files['FirstNetFile'] = sys.argv[2]
-    files['SecondNetFile'] = sys.argv[3]
-    files['NodeMappingFile'] = sys.argv[4]
-    files['OutputFile'] = sys.argv[5]
-
-    return files, delimiter
-
-def ReadEdgeListCSV(fileName, delimiter = '\t'):
+def ReadEdgeListCSV(fileName, delimiter = ','):
     """
     Read edge list csv to a hash table.
     """
@@ -46,7 +25,7 @@ def ReadEdgeListCSV(fileName, delimiter = '\t'):
 
     return edgeList
 
-def ReadMappingCSV(fileName, delimiter = '\t'):
+def ReadMappingCSV(fileName, delimiter = ','):
     """
     Read user mapping file from csv.
     """
@@ -62,7 +41,7 @@ def ReadMappingCSV(fileName, delimiter = '\t'):
 
     return mapping, reverseMapping
 
-def FlatNetwork(firstNet, secondNet, mapping, reverseMapping):
+def Flat(firstNet, secondNet, mapping, reverseMapping):
     """
     Create a flat network using node mapping.
     The user name is based on the firstNet.
@@ -100,16 +79,19 @@ def FlatNetwork(firstNet, secondNet, mapping, reverseMapping):
 
     return flatNet
 
-def FlatNetworkVer2(firstNet, secondNet, mapping, reverseMapping):
+def FlatV2(firstNet, secondNet, mapping, reverseMapping):
     # Test whether is mapping is reversed
+
+    reverseLimit = 100
+
     failCount = 0
     baseNet = '1st'
     refNet = '2nd'
     for testUser in mapping:
         if not testUser in firstNet:
             failCount = failCount + 1
-        if failCount > gReverseLimit:
-            MessageType.warn('Over {0} users were not found in the first network, trying to reverse the mapping now...'.format(gReverseLimit))
+        if failCount > reverseLimit:
+            MessageType.warn('Over {0} users were not found in the first network, trying to reverse the mapping now...'.format(reverseLimit))
             mapping, reverseMapping = reverseMapping, mapping
             baseNet, refNet = refNet, baseNet
 
@@ -118,7 +100,7 @@ def FlatNetworkVer2(firstNet, secondNet, mapping, reverseMapping):
             for retestUser in mapping:
                 if not retestUser in mapping:
                     refailCount = refailCount + 1
-                if refailCount > gReverseLimit:
+                if refailCount > reverseLimit:
                     MessageType.fatal('Reverse failed. Please check whether the node mapping is correct')
                     exit()
 
@@ -160,22 +142,23 @@ def FlatNetworkVer2(firstNet, secondNet, mapping, reverseMapping):
 
     return flatNet
 
+def BFS(edgeList, src, level = 1):
+    visited = set()
+    distHash = {}
+    q = queue.Queue()
+    q.put((src, 0))
+    visited.add(src)
+    dist = 0
+    while not q.empty():
+        (v, dist) = q.get()
+        if dist == level:
+            break
+        distHash[v] = dist
+        nextDist = dist + 1
+        if v in edgeList:
+            for nextV in edgeList[v]:
+                if not nextV in visited:
+                    q.put((nextV, nextDist))
+                    visited.add(nextV)
 
-filePath, delimiter = CommandParse()
-
-MessageType.info('Reading first network...') 
-firstNetEdgeList = ReadEdgeListCSV(filePath['FirstNetFile'], delimiter)
-
-MessageType.info('Reading second network...')
-secondNetEdgeList = ReadEdgeListCSV(filePath['SecondNetFile'], delimiter)
-
-MessageType.info('Reading node mapping...')
-nodeMapping, reverseMapping = ReadMappingCSV(filePath['NodeMappingFile'], delimiter)
-
-MessageType.info('Generating flat net...')
-flatNet = FlatNetworkVer2(firstNetEdgeList, secondNetEdgeList, nodeMapping, reverseMapping)
-
-with open(filePath['OutputFile'], mode = 'w') as outCsv:
-    for user in flatNet:
-        for friend in flatNet[user]:
-            print('{0},{1}'.format(user, friend), file = outCsv)
+    return distHash

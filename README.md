@@ -7,7 +7,7 @@
 ## Usage
 
 ```bash
-flatnet.py splitter firstnet.csv secnet.csv node mapping.csv outfile.csv
+flatnet.py splitter firstnet.csv secnet.csv nodemapping.csv outfile.csv
 ```
 
 ## Known Issue
