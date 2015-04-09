@@ -50,11 +50,24 @@ if __name__ == "__main__":
     for user in firstNetEdgeList:
         firstNetBFS[user] = Network.BFS(firstNetEdgeList, user, level = bfsLevel)
 
-    secondNetBFS = {}
+    secondNetBFSRaw = {}
 
     MessageType.info('Generating BFS node for the second network...')
     for user in secondNetEdgeList:
-        secondNetBFS[user] = Network.BFS(secondNetEdgeList, user, level = bfsLevel)
+        secondNetBFSRaw[user] = Network.BFS(secondNetEdgeList, user, level = bfsLevel)
+
+    # Mapping for the secondNetBFS
+
+    secondNetBFS = {}
+
+    for alterName in secondNetBFSRaw:
+        if alterName in reverseMapping:
+            user = reverseMapping[alterName]
+            secondNetBFS[user] = []
+            for alterFriendName in secondNetBFSRaw[alterName]:
+                if alterFriendName in reverseMapping:
+                    friendName = reverseMapping[alterFriendName]
+                    secondNetBFS[user].append(friendName)
 
     flatNetBFS = {}
 
@@ -66,11 +79,18 @@ if __name__ == "__main__":
         firstNetFriendSet = set()
         secondNetFriendSet = set()
         flatNetFriendSet = set()
+
         if user in firstNetBFS:
             firstNetFriendSet = set(firstNetBFS[user].keys())
-        if user in nodeMapping and user in secondNetBFS:
-            secondNetFriendSet = set(secondNetBFS[nodeMapping[user]].keys())
+            firstNetFriendSet.remove(user)
+
+        if user in secondNetBFS:
+            secondNetFriendSet = set(secondNetBFS[user])
+            secondNetFriendSet.remove(user)
+
         flatNetFriendSet = set(flatNetBFS[user].keys())
+        flatNetFriendSet.remove(user)
+
         subFirst = flatNetFriendSet - firstNetFriendSet
         subSecond = flatNetFriendSet - secondNetFriendSet
 
