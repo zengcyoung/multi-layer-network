@@ -1,0 +1,210 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-04-11 02:19:52\n"
+"PO-Revision-Date: 2015-04-11 02:20+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.7.5\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: GUI.py:54 GUI.py:56 GUI.py:58 GUI.py:60
+msgid "Browse"
+msgstr "浏览"
+
+#: GUI.py:64
+msgid "CSV file location of the 1st Network"
+msgstr "网络1的CSV文件位置"
+
+#: GUI.py:66
+msgid "CSV file location of the 2nd Network"
+msgstr "网络2的CSV文件位置"
+
+#: GUI.py:68
+msgid "CSV file location of the network node mapping"
+msgstr "网络节点映射的CSV文件位置"
+
+#: GUI.py:70
+msgid "CSV file location of the flat network for saving"
+msgstr "扁平网络的CSV文件保存位置"
+
+#: GUI.py:72
+msgid "Network 1:"
+msgstr "网络1："
+
+#: GUI.py:73
+msgid "Network 2:"
+msgstr "网络2："
+
+#: GUI.py:74
+msgid "Network mapping:"
+msgstr "网络映射："
+
+#: GUI.py:75
+msgid "Flat network:"
+msgstr "扁平网络："
+
+#: GUI.py:96
+msgid "Flat network user relationship tool"
+msgstr "扁平网络用户关系工具"
+
+#: MessageType.py:4
+msgid "INFO: "
+msgstr "信息: "
+
+#: MessageType.py:8
+msgid "WARN: "
+msgstr "警告: "
+
+#: MessageType.py:12
+msgid "FATAL: "
+msgstr "致命: "
+
+#: MessageType.py:16
+msgid "IMPORTANT: "
+msgstr "重要: "
+
+#: Network.py:24
+msgid "No \"Source\" node found"
+msgstr "找不到名为\"Source\"的节点"
+
+#: Network.py:54
+msgid "Mapping reversing for {0}. "
+msgstr "正在为{0}进行映射逆转。"
+
+#: Network.py:55
+msgid "Please check the order of the networks."
+msgstr "请检查输入网络的顺序"
+
+#: Network.py:57
+msgid "Reversing failed, exiting..."
+msgstr "逆转失败，退出。"
+
+#: Network.py:90
+msgid "1st"
+msgstr "第一个"
+
+#: Network.py:91
+msgid "2nd"
+msgstr "第二个"
+
+#: Network.py:96
+msgid "Over {0} users were not "
+msgstr "超过{0}用户不"
+
+#: Network.py:97
+msgid "found in the first network, "
+msgstr "存在于第一个网络，"
+
+#: Network.py:98
+msgid "trying to reverse the mapping now..."
+msgstr "正在尝试映射逆转…"
+
+#: Network.py:108
+msgid "Reverse failed. "
+msgstr "逆转失败。"
+
+#: Network.py:109
+msgid "Please check whether the node mapping is correct"
+msgstr "请检查节点映射是否正确。"
+
+#: Network.py:112
+msgid "Reverse successfully."
+msgstr "逆转成功。"
+
+#: Network.py:119
+msgid "Current user: {0}"
+msgstr "当前用户: {0}"
+
+#: Network.py:125
+msgid "    Friends: {0}"
+msgstr "    朋友: {0}"
+
+#: Network.py:128
+msgid "{0} doesn't exist in the {1} network"
+msgstr "{0}不存在于{1}网络"
+
+#: Network.py:132
+msgid "    Alternative name got: {0}"
+msgstr "    获得别名: {0}"
+
+#: Network.py:143 Network.py:149
+msgid "    New friend from another network: "
+msgstr "    来自另一个网络的新朋友: "
+
+#: Network.py:144 Network.py:150
+msgid "{0}"
+msgstr "{0}"
+
+#: Network.py:152
+msgid "{0} doesn't exist in "
+msgstr "{0}在"
+
+#: Network.py:153
+msgid "the {0} network as out node"
+msgstr "{0}网络不作为出度节点"
+
+#: Network.py:179
+msgid "Reading first network..."
+msgstr "正在读取第一个网络…"
+
+#: Network.py:183
+msgid "Reading second network..."
+msgstr "正在读取第二个网络…"
+
+#: Network.py:187
+msgid "Reading node mapping..."
+msgstr "正在读取节点映射…"
+
+#: Network.py:191
+msgid "Generating flat net..."
+msgstr "正在生成扁平网络…"
+
+#: Network.py:202
+msgid "Generating BFS node for the first network..."
+msgstr "正在为第一个网络生成BFS搜索结果…"
+
+#: Network.py:209
+msgid "Generating BFS node for the second network..."
+msgstr "正在为第二个网络生成BFS搜索结果…"
+
+#: Network.py:229
+msgid "Generating BFS node for the flat network..."
+msgstr "正在为扁平网络生成BFS搜索结果…"
+
+#: Network.py:252
+msgid "New friend for {0}"
+msgstr "{0}的新朋友"
+
+#: Network.py:254
+msgid "    For first net"
+msgstr "    对于第一个网络"
+
+#: Network.py:256 Network.py:260
+msgid "        {0}"
+msgstr "        {0}"
+
+#: Network.py:258
+msgid "    For second net"
+msgstr "    对于第二个网络"
+
+#: main.py:16
+msgid "Usage: main.py splitter"
+msgstr "使用方法: main.py 分隔符"
+
+#: main.py:17
+msgid "firstnet.csv secnet.csv nodemapping.csv outfile.csv"
+msgstr "第一个网络.csv 第二个网络.csv 网络节点映射.csv 输出的扁平网络文件.csv"
+
+#~ msgid "the {1} network as out node"
+#~ msgstr "{1}网络不是一个入度节点。"
