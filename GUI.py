@@ -33,23 +33,45 @@
 ##
 #############################################################################
 
-from PyQt5.QtCore import (QDir, QIODevice, QFile, QFileInfo, Qt, QTextStream,
-        QUrl)
-from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QComboBox,
-        QDialog, QFileDialog, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
-        QProgressDialog, QPushButton, QSizePolicy, QTableWidget,
-        QTableWidgetItem, QVBoxLayout)
+from PyQt5.QtCore import (Qt, QDir, QFile)
+from PyQt5.QtGui import (QKeySequence, QDesktopServices)
+from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QFrame,
+        QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy, QVBoxLayout,
+        QWidget, QDialog, QFileDialog, QGridLayout, QVBoxLayout,
+        QProgressDialog, QPushButton, QSizePolicy, QComboBox)
 
+import json
 import gettext
+import Network
 
-zh = gettext.translation('flatnet', localedir = 'locale',
-        languages = ['zh'])
-zh.install()
+gConfigure = {}
 
-class Window(QDialog):
-    def __init__(self, parent = None):
-        super(Window, self).__init__(parent)
+def ReadConfigure():
+    global gConfigure
+    with open('conf.json') as configureFile:
+        try:
+            gConfigure = json.load(configureFile)
+        except:
+            gConfigure = {}
+    if 'lang' in gConfigure:
+        userLang = [gConfigure['lang']]
+        langtext = gettext.translation('flatnet',
+                localedir = 'locale', languages = userLang)
+        langtext.install()
+    else:
+        gettext.install('flatnet')
+
+def SaveConfigure():
+    global gConfigure
+    with open('conf.json', mode = 'w') as configureFile:
+        try:
+            json.dump(gConfigure, configureFile)
+        except:
+            None
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super(MainWindow, self).__init__()
 
         browseNetwork1Button = self.createButton(_('Browse'),
                 self.browseNetwork1File)
@@ -82,6 +104,7 @@ class Window(QDialog):
         buttonsLayout.addWidget(browseNetworkFlatButton)
 
         mainLayout = QGridLayout()
+        mainLayout.setContentsMargins(5, 5, 5, 5)
         mainLayout.addWidget(network1Label, 0, 0)
         mainLayout.addWidget(self.network1PathComboBox, 0, 1, 1, 2)
         mainLayout.addWidget(network2Label, 1, 0)
@@ -91,7 +114,13 @@ class Window(QDialog):
         mainLayout.addWidget(networkFlatLabel, 3, 0)
         mainLayout.addWidget(self.networkFlatPathComboBox, 3, 1, 1, 2)
         mainLayout.addLayout(buttonsLayout, 0, 4, 4, 3)
-        self.setLayout(mainLayout)
+
+        widget = QWidget()
+        self.setCentralWidget(widget)
+        widget.setLayout(mainLayout)
+
+        self.createActions()
+        self.createMenus()
 
         self.setWindowTitle(_('Flat network user relationship tool'))
 
@@ -99,6 +128,26 @@ class Window(QDialog):
     def updateComboBox(comboBox):
         if comboBox.findText(comboBox.currentText()) == -1:
             comboBox.addItem(comboBox.currentText())
+
+    def createActions(self):
+        self.englishAct = QAction("&English", self, triggered =
+                self.switchToEnglish)
+
+        self.chineseAct = QAction("简体中文", self, triggered =
+                self.switchToChinese)
+
+    def createMenus(self):
+        self.langMenu = self.menuBar().addMenu(_("&Language"))
+        self.langMenu.addAction(self.englishAct)
+        self.langMenu.addAction(self.chineseAct)
+
+    def switchToEnglish(self):
+        gConfigure['lang'] = 'en'
+        SaveConfigure()
+
+    def switchToChinese(self):
+        gConfigure['lang'] = 'zh'
+        SaveConfigure()
 
     def browseNetwork1File(self):
         None
@@ -128,8 +177,9 @@ if __name__ == '__main__':
 
     import sys
 
+    ReadConfigure()
     app = QApplication(sys.argv)
-    window = Window()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec_())
 
