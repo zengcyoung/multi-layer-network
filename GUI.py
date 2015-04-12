@@ -82,42 +82,35 @@ class MainWindow(QMainWindow):
         browseNetworkFlatButton = self.createButton(_('Browse'),
                 self.browseNetworkFlatFile)
 
-        self.network1PathComboBox = self.createComboBox(
-                _('CSV file location of the 1st Network'))
-        self.network2PathComboBox = self.createComboBox(
-                _('CSV file location of the 2nd Network'))
-        self.networkMappingPathComboBox = self.createComboBox(
-                _('CSV file location of the network node mapping'))
-        self.networkFlatPathComboBox = self.createComboBox(
-                _('CSV file location of the flat network for saving'))
+        self.network1PathComboBox = self.createComboBox()
+        self.network2PathComboBox = self.createComboBox()
+        self.networkMappingPathComboBox = self.createComboBox()
+        self.networkFlatPathComboBox = self.createComboBox()
 
         network1Label = QLabel(_('Network 1:'))
         network2Label = QLabel(_('Network 2:'))
         networkMappingLabel = QLabel(_('Network mapping:'))
         networkFlatLabel = QLabel(_('Flat network:'))
 
-        buttonsLayout = QVBoxLayout()
-        buttonsLayout.addStretch()
-        buttonsLayout.addWidget(browseNetwork1Button)
-        buttonsLayout.addWidget(browseNetwork2Button)
-        buttonsLayout.addWidget(browseNetworkMappingButton)
-        buttonsLayout.addWidget(browseNetworkFlatButton)
-
         mainLayout = QGridLayout()
         mainLayout.setContentsMargins(5, 5, 5, 5)
         mainLayout.addWidget(network1Label, 0, 0)
-        mainLayout.addWidget(self.network1PathComboBox, 0, 1, 1, 2)
+        mainLayout.addWidget(self.network1PathComboBox, 0, 1, 1, 4)
+        mainLayout.addWidget(browseNetwork1Button, 0, 5, 1, 2)
         mainLayout.addWidget(network2Label, 1, 0)
-        mainLayout.addWidget(self.network2PathComboBox, 1, 1, 1, 2)
+        mainLayout.addWidget(self.network2PathComboBox, 1, 1, 1, 4)
+        mainLayout.addWidget(browseNetwork2Button, 1, 5, 1, 2)
         mainLayout.addWidget(networkMappingLabel, 2, 0)
-        mainLayout.addWidget(self.networkMappingPathComboBox, 2, 1, 1, 2)
+        mainLayout.addWidget(self.networkMappingPathComboBox, 2, 1, 1, 4)
+        mainLayout.addWidget(browseNetworkMappingButton, 2, 5, 1, 2)
         mainLayout.addWidget(networkFlatLabel, 3, 0)
-        mainLayout.addWidget(self.networkFlatPathComboBox, 3, 1, 1, 2)
-        mainLayout.addLayout(buttonsLayout, 0, 4, 4, 3)
+        mainLayout.addWidget(self.networkFlatPathComboBox, 3, 1, 1, 4)
+        mainLayout.addWidget(browseNetworkFlatButton, 3, 5, 1, 2)
 
         widget = QWidget()
         self.setCentralWidget(widget)
         widget.setLayout(mainLayout)
+        widget.resize(500, 500)
 
         self.createActions()
         self.createMenus()
@@ -150,16 +143,50 @@ class MainWindow(QMainWindow):
         SaveConfigure()
 
     def browseNetwork1File(self):
-        None
+        fileNetwork1Path = QFileDialog.getOpenFileName(self, _('Network 1 CSV File'),
+                QDir.currentPath())
+
+        if fileNetwork1Path:
+            if self.network1PathComboBox.findText(fileNetwork1Path[0]) == -1:
+                self.network1PathComboBox.addItem(fileNetwork1Path[0])
+
+            self.network1PathComboBox.setCurrentIndex(
+                    self.network1PathComboBox.findText(fileNetwork1Path[0]))
 
     def browseNetwork2File(self):
-        None
+        fileNetwork2Path = QFileDialog.getOpenFileName(self, _('Network 2 CSV File'),
+                QDir.currentPath())
+
+        if fileNetwork2Path:
+            if self.network2PathComboBox.findText(fileNetwork2Path[0]) == -1:
+                self.network2PathComboBox.addItem(fileNetwork2Path[0])
+
+            self.network2PathComboBox.setCurrentIndex(
+                    self.network2PathComboBox.findText(fileNetwork2Path[0]))
 
     def browseNetworkMappingFile(self):
-        None
+        fileNetworkMappingPath = QFileDialog.getOpenFileName(
+                self, _('Network Mapping CSV File'),
+                QDir.currentPath())
+
+        if fileNetworkMappingPath:
+            if self.networkMappingPathComboBox.findText(fileNetworkMappingPath[0]) == -1:
+                self.networkMappingPathComboBox.addItem(fileNetworkMappingPath[0])
+
+            self.networkMappingPathComboBox.setCurrentIndex(
+                    self.networkMappingPathComboBox.findText(fileNetworkMappingPath[0]))
 
     def browseNetworkFlatFile(self):
-        None
+        fileNetworkFlatPath = QFileDialog.getOpenFileName(
+                self, _('Flat Network CSV File'),
+                QDir.currentPath())
+
+        if fileNetworkFlatPath:
+            if self.networkFlatPathComboBox.findText(fileNetworkFlatPath[0]) == -1:
+                self.networkFlatPathComboBox.addItem(fileNetworkFlatPath[0])
+
+            self.networkFlatPathComboBox.setCurrentIndex(
+                    self.networkFlatPathComboBox.findText(fileNetworkFlatPath[0]))
 
     def createButton(self, text, member):
         button = QPushButton(text)
