@@ -1,0 +1,217 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2015-04-19 15:32:27\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp936\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: GUI.py:77 GUI.py:79 GUI.py:81 GUI.py:83
+msgid "Browse"
+msgstr ""
+
+#: GUI.py:86
+msgid "Generate flat network"
+msgstr ""
+
+#: GUI.py:99
+msgid "Network 1:"
+msgstr ""
+
+#: GUI.py:100
+msgid "Network 2:"
+msgstr ""
+
+#: GUI.py:101
+msgid "Network mapping:"
+msgstr ""
+
+#: GUI.py:102
+msgid "Flat network:"
+msgstr ""
+
+#: GUI.py:103
+msgid "CSV delimiter:"
+msgstr ""
+
+#: GUI.py:104
+msgid "BFS level:"
+msgstr ""
+
+#: GUI.py:142
+msgid "Flat network user relationship tool"
+msgstr ""
+
+#: GUI.py:157
+msgid "&Language"
+msgstr ""
+
+#: GUI.py:171
+msgid "Network 1 CSV File"
+msgstr ""
+
+#: GUI.py:184
+msgid "Network 2 CSV File"
+msgstr ""
+
+#: GUI.py:196
+msgid "Network Mapping CSV File"
+msgstr ""
+
+#: GUI.py:211
+msgid "Flat Network CSV File"
+msgstr ""
+
+#: MessageType.py:8
+msgid "INFO: "
+msgstr ""
+
+#: MessageType.py:12
+msgid "WARN: "
+msgstr ""
+
+#: MessageType.py:16
+msgid "FATAL: "
+msgstr ""
+
+#: MessageType.py:20
+msgid "IMPORTANT: "
+msgstr ""
+
+#: Network.py:29
+msgid "No \"Source\" node found"
+msgstr ""
+
+#: Network.py:61
+msgid "Mapping reversing for {0}. "
+msgstr ""
+
+#: Network.py:62
+msgid "Please check the order of the networks."
+msgstr ""
+
+#: Network.py:64
+msgid "Reversing failed, exiting..."
+msgstr ""
+
+#: Network.py:79
+msgid "{} doesn't exist in the 2nd network!"
+msgstr ""
+
+#: Network.py:97
+msgid "1st"
+msgstr ""
+
+#: Network.py:98
+msgid "2nd"
+msgstr ""
+
+#: Network.py:104
+msgid "Over {0} users were not "
+msgstr ""
+
+#: Network.py:105
+msgid "found in the first network, "
+msgstr ""
+
+#: Network.py:106
+msgid "trying to reverse the mapping now..."
+msgstr ""
+
+#: Network.py:116
+msgid "Reverse failed. "
+msgstr ""
+
+#: Network.py:117
+msgid "Please check whether the node mapping is correct"
+msgstr ""
+
+#: Network.py:120
+msgid "Reverse successfully."
+msgstr ""
+
+#: Network.py:128
+msgid "Current user: {0}"
+msgstr ""
+
+#: Network.py:134
+msgid "    Friends: {0}"
+msgstr ""
+
+#: Network.py:137
+msgid "{0} doesn't exist in the {1} network"
+msgstr ""
+
+#: Network.py:141
+msgid "    Alternative name got: {0}"
+msgstr ""
+
+#: Network.py:152 Network.py:158
+msgid "    New friend from another network: "
+msgstr ""
+
+#: Network.py:153 Network.py:159
+msgid "{0}"
+msgstr ""
+
+#: Network.py:161
+msgid "{0} doesn't exist in "
+msgstr ""
+
+#: Network.py:162
+msgid "the {0} network as out node"
+msgstr ""
+
+#: Network.py:189
+msgid "Reading first network..."
+msgstr ""
+
+#: Network.py:193
+msgid "Reading second network..."
+msgstr ""
+
+#: Network.py:197
+msgid "Reading node mapping..."
+msgstr ""
+
+#: Network.py:201
+msgid "Generating flat net..."
+msgstr ""
+
+#: Network.py:212
+msgid "Generating BFS node for the first network..."
+msgstr ""
+
+#: Network.py:219
+msgid "Generating BFS node for the second network..."
+msgstr ""
+
+#: Network.py:240
+msgid "Generating BFS node for the flat network..."
+msgstr ""
+
+#: Network.py:264
+msgid "New friend for {0}"
+msgstr ""
+
+#: Network.py:266
+msgid "    For first net"
+msgstr ""
+
+#: Network.py:268 Network.py:272
+msgid "        {0}"
+msgstr ""
+
+#: Network.py:270
+msgid "    For second net"
+msgstr ""
+

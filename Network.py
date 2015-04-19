@@ -4,6 +4,10 @@ import csv
 import queue
 import MessageType
 
+def Init(qtMainWindow):
+    global gQtMainWindow
+    gQtMainWindow = qtMainWindow
+
 def ReadEdgeListCSV(fileName, delimiter = ','):
     """
     Read edge list csv to a hash table.
@@ -14,6 +18,7 @@ def ReadEdgeListCSV(fileName, delimiter = ','):
         csvTable = csv.reader(csvFile, delimiter = delimiter)
 
         for row in csvTable:
+            gQtMainWindow.updateInterface()
             if not row[0] in edgeList:
                 edgeList[row[0]] = []
             edgeList[row[0]].append(row[1])
@@ -21,7 +26,7 @@ def ReadEdgeListCSV(fileName, delimiter = ','):
     try:
         del(edgeList['Source'])
     except:
-        MessageType.warn(_('No "Source" node found'))
+        MessageType.Warn(_('No "Source" node found'))
 
     return edgeList
 
@@ -35,6 +40,7 @@ def ReadMappingCSV(fileName, delimiter = ','):
         csvTable = csv.reader(csvFile, delimiter = delimiter)
 
         for row in csvTable:
+            gQtMainWindow.updateInterface()
             mapping[row[0]] = row[1]
 
     reverseMapping = {v : k for k, v in mapping.items()}
@@ -49,12 +55,13 @@ def Flat(firstNet, secondNet, mapping, reverseMapping):
     flatNet = {}
 
     for user in firstNet:
+        gQtMainWindow.updateInterface()
         flatNet[user] = []
         if not user in mapping:
-            MessageType.warn(_('Mapping reversing for {0}. ').format(user) +
+            MessageType.Warn(_('Mapping reversing for {0}. ').format(user) +
                     _('Please check the order of the networks.'))
             if not user in reverseMapping:
-                MessageType.fatal(_('Reversing failed, exiting...'))
+                MessageType.Fatal(_('Reversing failed, exiting...'))
                 exit()
             else:
                 secondName = reverseMapping[user]
@@ -69,7 +76,7 @@ def Flat(firstNet, secondNet, mapping, reverseMapping):
                 flatNet[user].append(friend)
 
         if not secondName in secondNet:
-            MessageType.warn("{} doesn't exist in the 2nd network!".format(
+            MessageType.Warn(_("{} doesn't exist in the 2nd network!").format(
                 secondName))
         else:
             for secondNetFriend in secondNet[secondName]:
@@ -90,10 +97,11 @@ def FlatV2(firstNet, secondNet, mapping, reverseMapping):
     baseNet = _('1st')
     refNet = _('2nd')
     for testUser in mapping:
+        gQtMainWindow.updateInterface()
         if not testUser in firstNet:
             failCount = failCount + 1
         if failCount > reverseLimit:
-            MessageType.warn(_('Over {0} users were not ').format(reverseLimit) +
+            MessageType.Warn(_('Over {0} users were not ').format(reverseLimit) +
                     _('found in the first network, ') +
                     _('trying to reverse the mapping now...'))
             mapping, reverseMapping = reverseMapping, mapping
@@ -105,31 +113,32 @@ def FlatV2(firstNet, secondNet, mapping, reverseMapping):
                 if not retestUser in mapping:
                     refailCount = refailCount + 1
                 if refailCount > reverseLimit:
-                    MessageType.fatal(_('Reverse failed. ') +
+                    MessageType.Fatal(_('Reverse failed. ') +
                             _('Please check whether the node mapping is correct'))
                     exit()
 
-            MessageType.important(_('Reverse successfully.'))
+            MessageType.Important(_('Reverse successfully.'))
             break
 
     flatNet = {}
 
     # First time iterate
     for user in mapping:
-        MessageType.info(_('Current user: {0}').format(user))
+        gQtMainWindow.updateInterface()
+        MessageType.Info(_('Current user: {0}').format(user))
 
         if user in firstNet:
             if not user in flatNet:
                 flatNet[user] = []
 
-            MessageType.info(_('    Friends: {0}').format(firstNet[user]))
+            MessageType.Info(_('    Friends: {0}').format(firstNet[user]))
             flatNet[user].extend(firstNet[user])
         else:
-            MessageType.warn(_("{0} doesn't exist in the {1} network").format(
+            MessageType.Warn(_("{0} doesn't exist in the {1} network").format(
                 user, baseNet))
 
         userAlterName = mapping[user]
-        MessageType.info(_('    Alternative name got: {0}').format(
+        MessageType.Info(_('    Alternative name got: {0}').format(
             userAlterName))
 
         if userAlterName in secondNet:
@@ -139,17 +148,17 @@ def FlatV2(firstNet, secondNet, mapping, reverseMapping):
                         flatNet[user] = []
                     if user in firstNet:
                         if not reverseMapping[friend] in firstNet[user]:
-                            MessageType.info(
+                            MessageType.Info(
                                     _('    New friend from another network: ') +
                                     _('{0}').format(friend))
                             flatNet[user].append(reverseMapping[friend])
                     else:
                         flatNet[user].append(reverseMapping[friend])
-                        MessageType.info(
+                        MessageType.Info(
                                 _('    New friend from another network: ') +
                                 _('{0}').format(friend))
         else:
-            MessageType.warn(_("{0} doesn't exist in ").format(user) +
+            MessageType.Warn(_("{0} doesn't exist in ").format(user) +
                     _('the {0} network as out node').format(refNet))
 
     return flatNet
@@ -162,6 +171,7 @@ def BFS(edgeList, src, level = 1):
     visited.add(src)
     dist = 0
     while not q.empty():
+        gQtMainWindow.updateInterface()
         (v, dist) = q.get()
         if dist == level:
             break
@@ -176,19 +186,19 @@ def BFS(edgeList, src, level = 1):
     return distHash
 
 def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
-    MessageType.info(_('Reading first network...'))
+    MessageType.Info(_('Reading first network...'))
     firstNetEdgeList = ReadEdgeListCSV(
             filePath['FirstNetFile'], delimiter)
 
-    MessageType.info(_('Reading second network...'))
+    MessageType.Info(_('Reading second network...'))
     secondNetEdgeList = ReadEdgeListCSV(
             filePath['SecondNetFile'], delimiter)
 
-    MessageType.info(_('Reading node mapping...'))
+    MessageType.Info(_('Reading node mapping...'))
     nodeMapping, reverseMapping = ReadMappingCSV(
             filePath['NodeMappingFile'], delimiter)
 
-    MessageType.info(_('Generating flat net...'))
+    MessageType.Info(_('Generating flat net...'))
     flatNet = FlatV2(
             firstNetEdgeList, secondNetEdgeList, nodeMapping, reverseMapping)
 
@@ -199,14 +209,14 @@ def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
 
     firstNetBFS = {}
 
-    MessageType.info(_('Generating BFS node for the first network...'))
+    MessageType.Info(_('Generating BFS node for the first network...'))
     for user in firstNetEdgeList:
         firstNetBFS[user] = BFS(
                 firstNetEdgeList, user, level = bfsLevel)
 
     secondNetBFSRaw = {}
 
-    MessageType.info(_('Generating BFS node for the second network...'))
+    MessageType.Info(_('Generating BFS node for the second network...'))
     for user in secondNetEdgeList:
         secondNetBFSRaw[user] = BFS(
                 secondNetEdgeList, user, level = bfsLevel)
@@ -216,6 +226,7 @@ def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
     secondNetBFS = {}
 
     for alterName in secondNetBFSRaw:
+        gQtMainWindow.updateInterface()
         if alterName in reverseMapping:
             user = reverseMapping[alterName]
             secondNetBFS[user] = []
@@ -226,11 +237,12 @@ def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
 
     flatNetBFS = {}
 
-    MessageType.info(_('Generating BFS node for the flat network...'))
+    MessageType.Info(_('Generating BFS node for the flat network...'))
     for user in flatNet:
         flatNetBFS[user] = BFS(flatNet, user, level = bfsLevel)
 
     for user in flatNetBFS:
+        gQtMainWindow.updateInterface()
         firstNetFriendSet = set()
         secondNetFriendSet = set()
         flatNetFriendSet = set()
@@ -249,13 +261,13 @@ def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
         subFirst = flatNetFriendSet - firstNetFriendSet
         subSecond = flatNetFriendSet - secondNetFriendSet
 
-        MessageType.info(_('New friend for {0}').format(user))
+        MessageType.Info(_('New friend for {0}').format(user))
         if len(subFirst) > 0:
-            MessageType.info(_('    For first net'))
+            MessageType.Info(_('    For first net'))
             for newFriend in subFirst:
-                MessageType.info(_('        {0}').format(newFriend))
+                MessageType.Info(_('        {0}').format(newFriend))
         if len(subSecond) > 0:
-            MessageType.info(_('    For second net'))
+            MessageType.Info(_('    For second net'))
             for newFriend in subSecond:
-                MessageType.info(_('        {0}').format(newFriend))
+                MessageType.Info(_('        {0}').format(newFriend))
 

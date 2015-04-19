@@ -1,17 +1,21 @@
 #!/usr/bin/python3
 
-def info(msg):
+def Init(qtMainWindow):
+    global gQtMainWindow
+    gQtMainWindow = qtMainWindow
+
+def Info(msg):
     msg = _('INFO: ') + msg
-    print(msg)
+    gQtMainWindow.insertLog(msg)
 
-def warn(msg):
+def Warn(msg):
     msg = _('WARN: ') + msg
-    print(msg)
+    gQtMainWindow.insertLog(msg)
 
-def fatal(msg):
+def Fatal(msg):
     msg = _('FATAL: ') + msg
-    print(msg)
+    gQtMainWindow.insertLog(msg)
 
-def important(msg):
+def Important(msg):
     msg = _('IMPORTANT: ') + msg
-    print(msg)
+    gQtMainWindow.insertLog(msg)

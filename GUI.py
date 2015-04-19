@@ -38,10 +38,11 @@ from PyQt5.QtGui import (QKeySequence, QDesktopServices)
 from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QFrame,
         QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy, QVBoxLayout,
         QWidget, QDialog, QFileDialog, QGridLayout, QVBoxLayout,
-        QProgressDialog, QPushButton, QSizePolicy, QComboBox)
+        QProgressDialog, QPushButton, QSizePolicy, QComboBox, QPlainTextEdit)
 
 import json
 import gettext
+import MessageType
 import Network
 
 gConfigure = {}
@@ -88,26 +89,48 @@ class MainWindow(QMainWindow):
         self.network2PathComboBox = self.createComboBox()
         self.networkMappingPathComboBox = self.createComboBox()
         self.networkFlatPathComboBox = self.createComboBox()
+        self.delimiterComboBox = self.createComboBox('\\t')
+        self.delimiterComboBox.addItem(',')
+        self.bfsLevelComboBox = self.createComboBox('2')
+        self.bfsLevelComboBox.addItem('3')
+        self.bfsLevelComboBox.addItem('4')
+        self.bfsLevelComboBox.addItem('5')
 
         network1Label = QLabel(_('Network 1:'))
         network2Label = QLabel(_('Network 2:'))
         networkMappingLabel = QLabel(_('Network mapping:'))
         networkFlatLabel = QLabel(_('Flat network:'))
+        delimiterLabel = QLabel(_('CSV delimiter:'))
+        bfsLevelLabel = QLabel(_('BFS level:'))
+
+        self.logTextBox = self.createLogBox()
 
         mainLayout = QGridLayout()
         mainLayout.setContentsMargins(5, 5, 5, 5)
+
         mainLayout.addWidget(network1Label, 0, 0)
         mainLayout.addWidget(self.network1PathComboBox, 0, 1, 1, 4)
         mainLayout.addWidget(browseNetwork1Button, 0, 5, 1, 2)
+
         mainLayout.addWidget(network2Label, 1, 0)
         mainLayout.addWidget(self.network2PathComboBox, 1, 1, 1, 4)
         mainLayout.addWidget(browseNetwork2Button, 1, 5, 1, 2)
+
         mainLayout.addWidget(networkMappingLabel, 2, 0)
         mainLayout.addWidget(self.networkMappingPathComboBox, 2, 1, 1, 4)
         mainLayout.addWidget(browseNetworkMappingButton, 2, 5, 1, 2)
+
         mainLayout.addWidget(networkFlatLabel, 3, 0)
         mainLayout.addWidget(self.networkFlatPathComboBox, 3, 1, 1, 4)
         mainLayout.addWidget(browseNetworkFlatButton, 3, 5, 1, 2)
+
+        mainLayout.addWidget(delimiterLabel, 4, 0, 1, 1)
+        mainLayout.addWidget(self.delimiterComboBox, 4, 1, 1, 1)
+        mainLayout.addWidget(bfsLevelLabel, 4, 2, 1, 1)
+        mainLayout.addWidget(self.bfsLevelComboBox , 4, 3, 1, 2)
+        mainLayout.addWidget(generateNetworkFlatButton, 4, 5, 1, 2)
+
+        mainLayout.addWidget(self.logTextBox, 5, 0, 5, 7)
 
         widget = QWidget()
         self.setCentralWidget(widget)
@@ -210,12 +233,36 @@ class MainWindow(QMainWindow):
         comboBox.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         return comboBox
 
-    def genFlatNetwork(self):
-        network1FilePath = self.network1PathComboBox.currentText()
-        network2FilePath = self.network2PathComboBox.currentText()
-        networkMappingFilePath = self.networkMappingPathComboBox.currentText()
-        networkFlatFilePath = self.networkFlatPathComboBox.currentText()
+    def createLogBox(self):
+        logTextBox = QPlainTextEdit()
+        logTextBox.setReadOnly(True)
+        logTextBox.setMaximumBlockCount(100)
+        logTextBox.setCenterOnScroll(True)
+        return logTextBox
 
+    def insertLog(self, logline=''):
+        self.logTextBox.appendPlainText(logline)
+        self.updateInterface()
+
+    def genFlatNetwork(self):
+        filePath = {}
+        filePath['FirstNetFile'] = self.network1PathComboBox.currentText()
+        filePath['SecondNetFile'] = self.network2PathComboBox.currentText()
+        filePath['NodeMappingFile'] = self.networkMappingPathComboBox.currentText()
+        filePath['OutputFile'] = self.networkFlatPathComboBox.currentText()
+
+        delimiter = self.delimiterComboBox.currentText()
+        if delimiter == '\\t':
+            delimiter = '\t'
+
+        bfsLevel = self.bfsLevelComboBox.currentText()
+        if not bfsLevel.isdigit():
+            bfsLevel = 2
+
+        Network.GenerateSubNetwork(filePath, delimiter, bfsLevel)
+
+    def updateInterface(self):
+        QApplication.processEvents()
 
 if __name__ == '__main__':
 
@@ -224,6 +271,8 @@ if __name__ == '__main__':
     ReadConfigure()
     app = QApplication(sys.argv)
     window = MainWindow()
+    MessageType.Init(window)
+    Network.Init(window)
     window.show()
     sys.exit(app.exec_())
 
