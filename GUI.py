@@ -81,6 +81,8 @@ class MainWindow(QMainWindow):
                 self.browseNetworkMappingFile)
         browseNetworkFlatButton = self.createButton(_('Browse'),
                 self.browseNetworkFlatFile)
+        generateNetworkFlatButton = self.createButton(
+            _('Generate flat network'), self.genFlatNetwork)
 
         self.network1PathComboBox = self.createComboBox()
         self.network2PathComboBox = self.createComboBox()
@@ -110,7 +112,6 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         self.setCentralWidget(widget)
         widget.setLayout(mainLayout)
-        widget.resize(500, 500)
 
         self.createActions()
         self.createMenus()
@@ -143,19 +144,22 @@ class MainWindow(QMainWindow):
         SaveConfigure()
 
     def browseNetwork1File(self):
-        fileNetwork1Path = QFileDialog.getOpenFileName(self, _('Network 1 CSV File'),
-                QDir.currentPath())
+        fileNetwork1Path = QFileDialog.getOpenFileName(
+                self, _('Network 1 CSV File'),
+                QDir.currentPath(), 'Comma-separated values (*.csv)')
 
         if fileNetwork1Path:
-            if self.network1PathComboBox.findText(fileNetwork1Path[0]) == -1:
+            if self.network1PathComboBox.findText(
+                    fileNetwork1Path[0]) == -1:
                 self.network1PathComboBox.addItem(fileNetwork1Path[0])
 
             self.network1PathComboBox.setCurrentIndex(
                     self.network1PathComboBox.findText(fileNetwork1Path[0]))
 
     def browseNetwork2File(self):
-        fileNetwork2Path = QFileDialog.getOpenFileName(self, _('Network 2 CSV File'),
-                QDir.currentPath())
+        fileNetwork2Path = QFileDialog.getOpenFileName(
+                self, _('Network 2 CSV File'),
+                QDir.currentPath(), 'Comma-separated values (*.csv)')
 
         if fileNetwork2Path:
             if self.network2PathComboBox.findText(fileNetwork2Path[0]) == -1:
@@ -167,26 +171,32 @@ class MainWindow(QMainWindow):
     def browseNetworkMappingFile(self):
         fileNetworkMappingPath = QFileDialog.getOpenFileName(
                 self, _('Network Mapping CSV File'),
-                QDir.currentPath())
+                QDir.currentPath(), 'Comma-separated values (*.csv)')
 
         if fileNetworkMappingPath:
-            if self.networkMappingPathComboBox.findText(fileNetworkMappingPath[0]) == -1:
-                self.networkMappingPathComboBox.addItem(fileNetworkMappingPath[0])
+            if self.networkMappingPathComboBox.findText(
+                    fileNetworkMappingPath[0]) == -1:
+                self.networkMappingPathComboBox.addItem(
+                        fileNetworkMappingPath[0])
 
             self.networkMappingPathComboBox.setCurrentIndex(
-                    self.networkMappingPathComboBox.findText(fileNetworkMappingPath[0]))
+                    self.networkMappingPathComboBox.findText(
+                        fileNetworkMappingPath[0]))
 
     def browseNetworkFlatFile(self):
-        fileNetworkFlatPath = QFileDialog.getOpenFileName(
+        fileNetworkFlatPath = QFileDialog.getSaveFileName(
                 self, _('Flat Network CSV File'),
-                QDir.currentPath())
+                QDir.currentPath(), 'Comma-separated values (*.csv)')
 
         if fileNetworkFlatPath:
-            if self.networkFlatPathComboBox.findText(fileNetworkFlatPath[0]) == -1:
-                self.networkFlatPathComboBox.addItem(fileNetworkFlatPath[0])
+            if self.networkFlatPathComboBox.findText(
+                    fileNetworkFlatPath[0]) == -1:
+                self.networkFlatPathComboBox.addItem(
+                        fileNetworkFlatPath[0])
 
             self.networkFlatPathComboBox.setCurrentIndex(
-                    self.networkFlatPathComboBox.findText(fileNetworkFlatPath[0]))
+                    self.networkFlatPathComboBox.findText(
+                        fileNetworkFlatPath[0]))
 
     def createButton(self, text, member):
         button = QPushButton(text)
@@ -199,6 +209,13 @@ class MainWindow(QMainWindow):
         comboBox.addItem(text)
         comboBox.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         return comboBox
+
+    def genFlatNetwork(self):
+        network1FilePath = self.network1PathComboBox.currentText()
+        network2FilePath = self.network2PathComboBox.currentText()
+        networkMappingFilePath = self.networkMappingPathComboBox.currentText()
+        networkFlatFilePath = self.networkFlatPathComboBox.currentText()
+
 
 if __name__ == '__main__':
 
