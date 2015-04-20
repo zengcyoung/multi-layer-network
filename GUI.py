@@ -38,7 +38,8 @@ from PyQt5.QtGui import (QKeySequence, QDesktopServices)
 from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QFrame,
         QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy, QVBoxLayout,
         QWidget, QDialog, QFileDialog, QGridLayout, QVBoxLayout,
-        QProgressDialog, QPushButton, QSizePolicy, QComboBox, QPlainTextEdit)
+        QProgressDialog, QPushButton, QSizePolicy, QComboBox, QPlainTextEdit,
+        QCheckBox)
 
 import json
 import gettext
@@ -102,6 +103,17 @@ class MainWindow(QMainWindow):
         networkFlatLabel = QLabel(_('Flat network:'))
         delimiterLabel = QLabel(_('CSV delimiter:'))
         bfsLevelLabel = QLabel(_('BFS level:'))
+        
+        self.infoCheckBox = QCheckBox(_('Info'))
+        self.infoCheckBox.setCheckState(True)
+        self.warnCheckBox = QCheckBox(_('Warn'))
+        self.warnCheckBox.setCheckState(True)
+        self.fatalCheckBox = QCheckBox(_('Fatal'))
+        self.fatalCheckBox.setCheckState(True)
+        self.importantCheckBox = QCheckBox(_('Important'))
+        self.importantCheckBox.setCheckState(True)
+        self.verboseCheckBox = QCheckBox(_('Verbose'))
+        
 
         self.logTextBox = self.createLogBox()
 
@@ -129,8 +141,14 @@ class MainWindow(QMainWindow):
         mainLayout.addWidget(bfsLevelLabel, 4, 2, 1, 1)
         mainLayout.addWidget(self.bfsLevelComboBox , 4, 3, 1, 2)
         mainLayout.addWidget(generateNetworkFlatButton, 4, 5, 1, 2)
+        
+        mainLayout.addWidget(self.infoCheckBox, 5, 0, 1, 1)
+        mainLayout.addWidget(self.warnCheckBox, 5, 1, 1, 1)
+        mainLayout.addWidget(self.fatalCheckBox, 5, 2, 1, 1)
+        mainLayout.addWidget(self.importantCheckBox, 5, 3, 1, 1)
+        mainLayout.addWidget(self.verboseCheckBox, 5, 4, 1, 1)
 
-        mainLayout.addWidget(self.logTextBox, 5, 0, 5, 7)
+        mainLayout.addWidget(self.logTextBox, 6, 0, 5, 7)
 
         widget = QWidget()
         self.setCentralWidget(widget)
@@ -263,6 +281,21 @@ class MainWindow(QMainWindow):
 
     def updateInterface(self):
         QApplication.processEvents()
+        
+    def getIsInfoLog(self):
+        return self.infoCheckBox.checkState()
+    
+    def getIsWarnLog(self):
+        return self.warnCheckBox.checkState()
+    
+    def getIsFatalLog(self):
+        return self.fatalCheckBox.checkState()
+    
+    def getIsImportantLog(self):
+        return self.importantCheckBox.checkState()
+    
+    def getIsVerboseLog(self):
+        return self.verboseCheckBox.checkState()
 
 if __name__ == '__main__':
 

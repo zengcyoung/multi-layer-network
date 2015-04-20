@@ -125,20 +125,20 @@ def FlatV2(firstNet, secondNet, mapping, reverseMapping):
     # First time iterate
     for user in mapping:
         gQtMainWindow.updateInterface()
-        MessageType.Info(_('Current user: {0}').format(user))
+        MessageType.Verbose(_('Current user: {0}').format(user))
 
         if user in firstNet:
             if not user in flatNet:
                 flatNet[user] = []
 
-            MessageType.Info(_('    Friends: {0}').format(firstNet[user]))
+            MessageType.Verbose(_('    Friends: {0}').format(firstNet[user]))
             flatNet[user].extend(firstNet[user])
         else:
             MessageType.Warn(_("{0} doesn't exist in the {1} network").format(
                 user, baseNet))
 
         userAlterName = mapping[user]
-        MessageType.Info(_('    Alternative name got: {0}').format(
+        MessageType.Verbose(_('    Alternative name got: {0}').format(
             userAlterName))
 
         if userAlterName in secondNet:
@@ -148,13 +148,13 @@ def FlatV2(firstNet, secondNet, mapping, reverseMapping):
                         flatNet[user] = []
                     if user in firstNet:
                         if not reverseMapping[friend] in firstNet[user]:
-                            MessageType.Info(
+                            MessageType.Verbose(
                                     _('    New friend from another network: ') +
                                     _('{0}').format(friend))
                             flatNet[user].append(reverseMapping[friend])
                     else:
                         flatNet[user].append(reverseMapping[friend])
-                        MessageType.Info(
+                        MessageType.Verbose(
                                 _('    New friend from another network: ') +
                                 _('{0}').format(friend))
         else:
@@ -204,6 +204,7 @@ def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
 
     with open(filePath['OutputFile'], mode = 'w') as outCsv:
         for user in flatNet:
+            gQtMainWindow.updateInterface()
             for friend in flatNet[user]:
                 print('{0},{1}'.format(user, friend), file = outCsv)
 
@@ -241,6 +242,13 @@ def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
     for user in flatNet:
         flatNetBFS[user] = BFS(flatNet, user, level = bfsLevel)
 
+    statistics = {}
+    statistics['Total'] = {}
+    statistics['Avg'] = {}
+    statistics['Total']['User'] = 0
+    statistics['Total']['NewFriendForNet1'] = 0
+    statistics['Total']['NewFriendForNet2'] = 0
+    
     for user in flatNetBFS:
         gQtMainWindow.updateInterface()
         firstNetFriendSet = set()
@@ -260,14 +268,24 @@ def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
 
         subFirst = flatNetFriendSet - firstNetFriendSet
         subSecond = flatNetFriendSet - secondNetFriendSet
+        
+        statistics['Total']['User'] = statistics['Total']['User'] + 1
+        statistics['Total']['NewFriendForNet1'] = statistics['Total']['NewFriendForNet1'] + len(subFirst)
+        statistics['Total']['NewFriendForNet2'] = statistics['Total']['NewFriendForNet2'] + len(subSecond)
 
-        MessageType.Info(_('New friend for {0}').format(user))
+        MessageType.Verbose(_('New friend for {0}').format(user))
+
         if len(subFirst) > 0:
-            MessageType.Info(_('    For first net'))
+            MessageType.Verbose(_('    For first net'))
             for newFriend in subFirst:
-                MessageType.Info(_('        {0}').format(newFriend))
+                MessageType.Verbose(_('        {0}').format(newFriend))
         if len(subSecond) > 0:
-            MessageType.Info(_('    For second net'))
+            MessageType.Verbose(_('    For second net'))
             for newFriend in subSecond:
-                MessageType.Info(_('        {0}').format(newFriend))
+                MessageType.Verbose(_('        {0}').format(newFriend))
 
+    statistics['Avg']['NewFriendForNet1'] = statistics['Total']['NewFriendForNet1'] / statistics['Total']['User']
+    statistics['Avg']['NewFriendForNet2'] = statistics['Total']['NewFriendForNet2'] / statistics['Total']['User']
+    
+    MessageType.Info(_('Average number of new friends for network 1: {0}').format(statistics['Avg']['NewFriendForNet1']))
+    MessageType.Info(_('Average number of new friends for network 2: {0}').format(statistics['Avg']['NewFriendForNet2']))
