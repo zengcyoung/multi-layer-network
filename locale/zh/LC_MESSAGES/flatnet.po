@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2015-04-19 15:32:27\n"
-"PO-Revision-Date: 2015-04-19 18:48+0800\n"
+"POT-Creation-Date: 2015-04-21 10:31:01\n"
+"PO-Revision-Date: 2015-04-21 10:33+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -15,62 +15,82 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.7.5\n"
+"X-Generator: Poedit 1.7.6\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: GUI.py:77 GUI.py:79 GUI.py:81 GUI.py:83
+#: GUI.py:78 GUI.py:80 GUI.py:82 GUI.py:84
 msgid "Browse"
 msgstr "浏览"
 
-#: GUI.py:86
+#: GUI.py:87
 msgid "Generate flat network"
 msgstr "生成扁平网络"
 
-#: GUI.py:99
+#: GUI.py:100
 msgid "Network 1:"
 msgstr "网络1："
 
-#: GUI.py:100
+#: GUI.py:101
 msgid "Network 2:"
 msgstr "网络2："
 
-#: GUI.py:101
+#: GUI.py:102
 msgid "Network mapping:"
 msgstr "网络映射："
 
-#: GUI.py:102
+#: GUI.py:103
 msgid "Flat network:"
 msgstr "扁平网络："
 
-#: GUI.py:103
+#: GUI.py:104
 msgid "CSV delimiter:"
 msgstr "CSV分隔符"
 
-#: GUI.py:104
+#: GUI.py:105
 msgid "BFS level:"
 msgstr "搜索广度"
 
-#: GUI.py:142
+#: GUI.py:107
+msgid "Info"
+msgstr "信息"
+
+#: GUI.py:109
+msgid "Warn"
+msgstr "警告"
+
+#: GUI.py:111
+msgid "Fatal"
+msgstr "致命"
+
+#: GUI.py:113
+msgid "Important"
+msgstr "重要"
+
+#: GUI.py:115
+msgid "Verbose"
+msgstr "详细"
+
+#: GUI.py:160
 msgid "Flat network user relationship tool"
 msgstr "扁平网络用户关系工具"
 
-#: GUI.py:157
+#: GUI.py:175
 msgid "&Language"
 msgstr "语言"
 
-#: GUI.py:171
+#: GUI.py:189
 msgid "Network 1 CSV File"
 msgstr "网络1 CSV文件"
 
-#: GUI.py:184
+#: GUI.py:202
 msgid "Network 2 CSV File"
 msgstr "网络2 CSV文件"
 
-#: GUI.py:196
+#: GUI.py:214
 msgid "Network Mapping CSV File"
 msgstr "网络映射CSV文件"
 
-#: GUI.py:211
+#: GUI.py:229
 msgid "Flat Network CSV File"
 msgstr "扁平网络CSV文件"
 
@@ -78,17 +98,21 @@ msgstr "扁平网络CSV文件"
 msgid "INFO: "
 msgstr "信息: "
 
-#: MessageType.py:12
+#: MessageType.py:13
 msgid "WARN: "
 msgstr "警告: "
 
-#: MessageType.py:16
+#: MessageType.py:18
 msgid "FATAL: "
 msgstr "致命: "
 
-#: MessageType.py:20
+#: MessageType.py:23
 msgid "IMPORTANT: "
 msgstr "重要: "
+
+#: MessageType.py:28
+msgid "Verbose: "
+msgstr "详细: "
 
 #: Network.py:29
 msgid "No \"Source\" node found"
@@ -190,33 +214,41 @@ msgstr "正在读取节点映射…"
 msgid "Generating flat net..."
 msgstr "正在生成扁平网络…"
 
-#: Network.py:212
+#: Network.py:213
 msgid "Generating BFS node for the first network..."
 msgstr "正在为第一个网络生成BFS搜索结果…"
 
-#: Network.py:219
+#: Network.py:220
 msgid "Generating BFS node for the second network..."
 msgstr "正在为第二个网络生成BFS搜索结果…"
 
-#: Network.py:240
+#: Network.py:241
 msgid "Generating BFS node for the flat network..."
 msgstr "正在为扁平网络生成BFS搜索结果…"
 
-#: Network.py:264
+#: Network.py:276
 msgid "New friend for {0}"
 msgstr "{0}的新朋友"
 
-#: Network.py:266
+#: Network.py:279
 msgid "    For first net"
 msgstr "    对于第一个网络"
 
-#: Network.py:268 Network.py:272
+#: Network.py:281 Network.py:285
 msgid "        {0}"
 msgstr "        {0}"
 
-#: Network.py:270
+#: Network.py:283
 msgid "    For second net"
 msgstr "    对于第二个网络"
+
+#: Network.py:290
+msgid "Average number of new friends for network 1: {0}"
+msgstr "网络1的平均新朋友数量: {0}"
+
+#: Network.py:291
+msgid "Average number of new friends for network 2: {0}"
+msgstr "网络2的平均新朋友数量: {0}"
 
 #~ msgid "CSV file location of the 1st Network"
 #~ msgstr "网络1的CSV文件位置"
