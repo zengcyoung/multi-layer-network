@@ -2,6 +2,7 @@
 
 import operator
 import Network
+import MessageSystem
 
 def Init(qtMainWindow):
     global gQtMainWindow
@@ -11,6 +12,12 @@ class Candidate:
     def __init__(self, a_name = ""):
         self.name = a_name
         self.friendCount = 0
+        
+    def __str__(self):
+        return "{0} => {1}".format(name, friendCount)
+    
+    def __repr__(self):
+        return "name: {0}\nfriendCount: {1}".format(name, friendCount)
 
     def AddCount(self):
         self.friendCount = self.friendCount + 1
@@ -39,7 +46,9 @@ def UserLink(net1, net2, origMap,
     
     AddPending(net1, origMap, sampleUserNet1, pending, nextRound,
             knownFriendRate)
-
+    
+    print(pending)
+    
     while True:
         for user in pending:
             # 为用户创建词典
@@ -117,14 +126,19 @@ def UserLink(net1, net2, origMap,
                     guessMap1To2[greatestUser] = candidate[greatestUser]["primary"].name
                     net2Selected[candidate[greatestUser]["primary"].name] = 1
                     selectedCandidate[greatestUser] = True
-                    del(competeList[greatestUser])
+                    
+                    # 从竞争列表中删除赢家
+                    for i in range(len(competeList)):
+                        if competeList[i] == greatestUser:
+                            del(competeList[i])
+                            break
 
                     for restUser in competeList:
                         # 如果没有其他候选人了，送入nextRound
                         # 否则将list中的候选人作为primary
                         if len(candidate[restUser]["list"]) == 0:
                             nextRound.append(restUser)
-                            del(candidate[restUser])
+                            selectedCandidate[restUser] = True
                         else:
                             candidate[restUser]["primary"] = candidate[restUser]["list"].pop(0)
                 # 不存在竞争用户，直接送入guessMap1To2
@@ -147,6 +161,10 @@ def UserLink(net1, net2, origMap,
             resultMap[newUser] = guessMap1To2[newUser]
 
         guessMap1To2.clear()
+        
+        # 清空candidate和selectedCandidate
+        candidate.clear()
+        selectedCandidate.clear()
 
     return resultMap
 
