@@ -2,7 +2,11 @@
 
 import csv
 import queue
-import MessageType
+import MessageSystem
+
+def Init(qtMainWindow):
+    global gQtMainWindow
+    gQtMainWindow = qtMainWindow
 
 def ReadEdgeListCSV(fileName, delimiter = ','):
     """
@@ -14,6 +18,7 @@ def ReadEdgeListCSV(fileName, delimiter = ','):
         csvTable = csv.reader(csvFile, delimiter = delimiter)
 
         for row in csvTable:
+            gQtMainWindow.updateInterface()
             if not row[0] in edgeList:
                 edgeList[row[0]] = []
             edgeList[row[0]].append(row[1])
@@ -21,7 +26,7 @@ def ReadEdgeListCSV(fileName, delimiter = ','):
     try:
         del(edgeList['Source'])
     except:
-        MessageType.warn(_('No "Source" node found'))
+        MessageSystem.Send(100)
 
     return edgeList
 
@@ -35,122 +40,86 @@ def ReadMappingCSV(fileName, delimiter = ','):
         csvTable = csv.reader(csvFile, delimiter = delimiter)
 
         for row in csvTable:
+            gQtMainWindow.updateInterface()
             mapping[row[0]] = row[1]
 
     reverseMapping = {v : k for k, v in mapping.items()}
 
     return mapping, reverseMapping
 
-def Flat(firstNet, secondNet, mapping, reverseMapping):
-    """
-    Create a flat network using node mapping.
-    The user name is based on the firstNet.
-    """
-    flatNet = {}
-
-    for user in firstNet:
-        flatNet[user] = []
-        if not user in mapping:
-            MessageType.warn(_('Mapping reversing for {0}. ').format(user) +
-                    _('Please check the order of the networks.'))
-            if not user in reverseMapping:
-                MessageType.fatal(_('Reversing failed, exiting...'))
-                exit()
-            else:
-                secondName = reverseMapping[user]
-        else:
-            secondName = mapping[user]
-        # Can't use code below
-        # flatNet[user] = firstNet[user].copy()
-        # In case the friend doesn't exist in the other network
-
-        for friend in firstNet[user]:
-            if friend in mapping:
-                flatNet[user].append(friend)
-
-        if not secondName in secondNet:
-            MessageType.warn("{} doesn't exist in the 2nd network!".format(
-                secondName))
-        else:
-            for secondNetFriend in secondNet[secondName]:
-                if not secondNetFriend in reverseMapping:
-                    continue # The friend doesn't belong to both network
-                friendNameInFirstNet = reverseMapping[secondNetFriend]
-                if not friendNameInFirstNet in firstNet[user]:
-                    flatNet[user].append(friendNameInFirstNet)
-
-    return flatNet
-
-def FlatV2(firstNet, secondNet, mapping, reverseMapping):
+def CheckReversed(networkDataSet):
     # Test whether is mapping is reversed
 
     reverseLimit = 100
 
     failCount = 0
-    baseNet = _('1st')
-    refNet = _('2nd')
-    for testUser in mapping:
-        if not testUser in firstNet:
+    # Check if the mapping needs to be reversed
+    for testUser in networkDataSet["nodeMapping"]:
+        gQtMainWindow.updateInterface()
+        if not testUser in networkDataSet["firstNetEdgeList"]:
             failCount = failCount + 1
+        # There are more than reverseLimit users who doesn't exist in
+        # the fristNetwork
         if failCount > reverseLimit:
-            MessageType.warn(_('Over {0} users were not ').format(reverseLimit) +
-                    _('found in the first network, ') +
-                    _('trying to reverse the mapping now...'))
-            mapping, reverseMapping = reverseMapping, mapping
-            baseNet, refNet = refNet, baseNet
+            MessageSystem.Send(101, reverseLimit)
+            
+            (networkDataSet["nodeMapping"],
+            networkDataSet["reverseMapping"]) =\
+                (networkDataSet["reverseMapping"],
+                networkDataSet["nodeMapping"])
 
             refailCount = 0
 
-            for retestUser in mapping:
-                if not retestUser in mapping:
+            for retestUser in networkDataSet["nodeMapping"]:
+                if not retestUser in networkDataSet["firstNetEdgeList"]:
                     refailCount = refailCount + 1
                 if refailCount > reverseLimit:
-                    MessageType.fatal(_('Reverse failed. ') +
-                            _('Please check whether the node mapping is correct'))
+                    MessageSystem.Send(200)
                     exit()
 
-            MessageType.important(_('Reverse successfully.'))
+            MessageSystem.Send(300)
             break
+
+def FlatV2(networkDataSet):
 
     flatNet = {}
 
-    # First time iterate
-    for user in mapping:
-        MessageType.info(_('Current user: {0}').format(user))
+    baseNet = _('1st')
+    refNet = _('2nd')
 
-        if user in firstNet:
+    CheckReversed(networkDataSet)
+
+    # First time iterate
+    for user in networkDataSet["nodeMapping"]:
+        gQtMainWindow.updateInterface()
+        MessageSystem.Send(400, user)
+
+        if user in networkDataSet["firstNetEdgeList"]:
             if not user in flatNet:
                 flatNet[user] = []
 
-            MessageType.info(_('    Friends: {0}').format(firstNet[user]))
-            flatNet[user].extend(firstNet[user])
+            MessageSystem.Send(401, networkDataSet["firstNetEdgeList"][user])
+            flatNet[user].extend(networkDataSet["firstNetEdgeList"][user])
         else:
-            MessageType.warn(_("{0} doesn't exist in the {1} network").format(
-                user, baseNet))
+            MessageSystem.Send(102, user, baseNet)
 
-        userAlterName = mapping[user]
-        MessageType.info(_('    Alternative name got: {0}').format(
-            userAlterName))
+        userAlterName = networkDataSet["nodeMapping"][user]
+        MessageSystem.Send(402, userAlterName)
 
-        if userAlterName in secondNet:
-            for friend in secondNet[userAlterName]:
-                if friend in reverseMapping:
+        if userAlterName in networkDataSet["secondNetEdgeList"]:
+            for friend in networkDataSet["secondNetEdgeList"][userAlterName]:
+                if friend in networkDataSet["reverseMapping"]:
                     if not user in flatNet:
                         flatNet[user] = []
-                    if user in firstNet:
-                        if not reverseMapping[friend] in firstNet[user]:
-                            MessageType.info(
-                                    _('    New friend from another network: ') +
-                                    _('{0}').format(friend))
-                            flatNet[user].append(reverseMapping[friend])
+                    if user in networkDataSet["firstNetEdgeList"]:
+                        if not networkDataSet["reverseMapping"][friend] in networkDataSet["firstNetEdgeList"][user]:
+                            MessageSystem.Send(403, friend)
+                            flatNet[user].append(networkDataSet["reverseMapping"][friend])
                     else:
-                        flatNet[user].append(reverseMapping[friend])
-                        MessageType.info(
-                                _('    New friend from another network: ') +
-                                _('{0}').format(friend))
+                        flatNet[user].append(networkDataSet["reverseMapping"][friend])
+                        MessageSystem.Send(404, friend)
         else:
-            MessageType.warn(_("{0} doesn't exist in ").format(user) +
-                    _('the {0} network as out node').format(refNet))
+            MessageSystem.Send(103, user, refNet)
 
     return flatNet
 
@@ -162,6 +131,7 @@ def BFS(edgeList, src, level = 1):
     visited.add(src)
     dist = 0
     while not q.empty():
+        gQtMainWindow.updateInterface()
         (v, dist) = q.get()
         if dist == level:
             break
@@ -175,87 +145,137 @@ def BFS(edgeList, src, level = 1):
 
     return distHash
 
-def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
-    MessageType.info(_('Reading first network...'))
-    firstNetEdgeList = ReadEdgeListCSV(
+def LoadNetworkData(filePath, delimiter = ','):
+    networkDataSet = {}
+
+    MessageSystem.Info(_('Reading first network...'))
+    networkDataSet["firstNetEdgeList"] = ReadEdgeListCSV(
             filePath['FirstNetFile'], delimiter)
 
-    MessageType.info(_('Reading second network...'))
-    secondNetEdgeList = ReadEdgeListCSV(
+    MessageSystem.Info(_('Reading second network...'))
+    networkDataSet["secondNetEdgeList"] = ReadEdgeListCSV(
             filePath['SecondNetFile'], delimiter)
 
-    MessageType.info(_('Reading node mapping...'))
-    nodeMapping, reverseMapping = ReadMappingCSV(
-            filePath['NodeMappingFile'], delimiter)
+    MessageSystem.Info(_('Reading node mapping...'))
+    networkDataSet["nodeMapping"], networkDataSet["reverseMapping"] = ReadMappingCSV(filePath['NodeMappingFile'], delimiter)
 
-    MessageType.info(_('Generating flat net...'))
-    flatNet = FlatV2(
-            firstNetEdgeList, secondNetEdgeList, nodeMapping, reverseMapping)
 
+    return networkDataSet
+    
+def SaveFlatNetFile(filePath, flatNet):
     with open(filePath['OutputFile'], mode = 'w') as outCsv:
         for user in flatNet:
+            gQtMainWindow.updateInterface()
             for friend in flatNet[user]:
                 print('{0},{1}'.format(user, friend), file = outCsv)
-
+                
+def GenerateBFS(networkDataSet, bfsDataSet):
     firstNetBFS = {}
-
-    MessageType.info(_('Generating BFS node for the first network...'))
-    for user in firstNetEdgeList:
+    MessageSystem.Info(_('Generating BFS node for the first network...'))
+    for user in networkDataSet["firstNetEdgeList"]:
         firstNetBFS[user] = BFS(
-                firstNetEdgeList, user, level = bfsLevel)
+                networkDataSet["firstNetEdgeList"], user, level = bfsLevel)
 
     secondNetBFSRaw = {}
 
-    MessageType.info(_('Generating BFS node for the second network...'))
-    for user in secondNetEdgeList:
+    MessageSystem.Info(_('Generating BFS node for the second network...'))
+    for user in networkDataSet["secondNetEdgeList"]:
         secondNetBFSRaw[user] = BFS(
-                secondNetEdgeList, user, level = bfsLevel)
+                networkDataSet["secondNetEdgeList"], user, level = bfsLevel)
 
     # Mapping for the secondNetBFS
 
     secondNetBFS = {}
 
     for alterName in secondNetBFSRaw:
-        if alterName in reverseMapping:
-            user = reverseMapping[alterName]
+        gQtMainWindow.updateInterface()
+        if alterName in networkDataSet["reverseMapping"]:
+            user = networkDataSet["reverseMapping"][alterName]
             secondNetBFS[user] = []
             for alterFriendName in secondNetBFSRaw[alterName]:
-                if alterFriendName in reverseMapping:
-                    friendName = reverseMapping[alterFriendName]
+                if alterFriendName in networkDataSet["reverseMapping"]:
+                    friendName = networkDataSet["reverseMapping"][alterFriendName]
                     secondNetBFS[user].append(friendName)
 
     flatNetBFS = {}
 
-    MessageType.info(_('Generating BFS node for the flat network...'))
+    MessageSystem.Info(_('Generating BFS node for the flat network...'))
     for user in flatNet:
         flatNetBFS[user] = BFS(flatNet, user, level = bfsLevel)
+        
+    bfsDataSet["first"] = firstNetBFS.copy()
+    bfsDataSet["second"] = secondNetBFS.copy()
+    bfsDataSet["flat"] = flatNetBFS.copy()
 
-    for user in flatNetBFS:
+def UserStatistics(bfsDataSet):
+    statistics = {}
+    statistics['Total'] = {}
+    statistics['Avg'] = {}
+    statistics['Total']['User'] = 0
+    statistics['Total']['NewFriendForNet1'] = 0
+    statistics['Total']['NewFriendForNet2'] = 0
+    
+    for user in bfsDataSet["flat"] :
+        gQtMainWindow.updateInterface()
         firstNetFriendSet = set()
         secondNetFriendSet = set()
         flatNetFriendSet = set()
 
-        if user in firstNetBFS:
-            firstNetFriendSet = set(firstNetBFS[user].keys())
+        if user in bfsDataSet["first"]:
+            firstNetFriendSet = set(bfsDataSet["first"][user].keys())
             firstNetFriendSet.remove(user)
 
-        if user in secondNetBFS:
-            secondNetFriendSet = set(secondNetBFS[user])
+        if user in bfsDataSet["second"]:
+            secondNetFriendSet = set(bfsDataSet["second"][user])
             secondNetFriendSet.remove(user)
 
-        flatNetFriendSet = set(flatNetBFS[user].keys())
+        flatNetFriendSet = set(bfsDataSet["flat"] [user].keys())
         flatNetFriendSet.remove(user)
 
         subFirst = flatNetFriendSet - firstNetFriendSet
         subSecond = flatNetFriendSet - secondNetFriendSet
+        
+        statistics['Total']['User'] = statistics['Total']['User'] + 1
+        statistics['Total']['NewFriendForNet1'] =\
+                statistics['Total']['NewFriendForNet1'] + len(subFirst)
+        statistics['Total']['NewFriendForNet2'] =\
+                statistics['Total']['NewFriendForNet2'] + len(subSecond)
 
-        MessageType.info(_('New friend for {0}').format(user))
+        MessageSystem.Verbose(_('New friend for {0}').format(user))
+
         if len(subFirst) > 0:
-            MessageType.info(_('    For first net'))
+            MessageSystem.Verbose(_('    For first net'))
             for newFriend in subFirst:
-                MessageType.info(_('        {0}').format(newFriend))
+                MessageSystem.Verbose(_('        {0}').format(newFriend))
         if len(subSecond) > 0:
-            MessageType.info(_('    For second net'))
+            MessageSystem.Verbose(_('    For second net'))
             for newFriend in subSecond:
-                MessageType.info(_('        {0}').format(newFriend))
+                MessageSystem.Verbose(_('        {0}').format(newFriend))
+
+    statistics['Avg']['NewFriendForNet1'] =\
+            (statistics['Total']['NewFriendForNet1'] /
+                    statistics['Total']['User'])
+    statistics['Avg']['NewFriendForNet2'] =\
+            (statistics['Total']['NewFriendForNet2'] /
+                    statistics['Total']['User'])
+    
+    MessageSystem.Info(_('Average number of new friends for network 1: {0}').\
+            format(statistics['Avg']['NewFriendForNet1']))
+    MessageSystem.Info(_('Average number of new friends for network 2: {0}').\
+            format(statistics['Avg']['NewFriendForNet2']))
+
+def GenerateSubNetwork(filePath, delimiter = ',', bfsLevel = 2):
+    networkDataSet = LoadNetworkData(filePath, delimiter)
+
+    MessageSystem.Info(_('Generating flat net...'))
+
+    flatNet = FlatV2(networkDataSet)
+
+    SaveFlatNetFile(filePath, flatNet)
+
+    bfsDataSet = {}
+    
+    GenerateBFS(networkDataSet, bfsDataSet)
+    
+    UserStatistics(bfsDataSet)
 

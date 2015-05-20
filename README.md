@@ -4,8 +4,7 @@
 
 - **Network.py**: Doing network-related algorithm.
 - **MessageType.py**: Functions used to output different messages.
-- **GUI.py**: Qt5 GUI (Not implemented)
-- **main.py**: Main executable
+- **GUI.py**: Qt5 GUI Main Executable
 
 ## Usage
 
