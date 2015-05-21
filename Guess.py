@@ -61,8 +61,8 @@ def UserLink(net1, net2, origMap,
         gQtMainWindow.updateInterface()
         if prevPending == pending:
             samePendingCount += 1
-            if samePendingCount == 10000:
-                # print("Over 10000 repeated pending!!!")
+            if samePendingCount == 3:
+                # print("Over 3 repeated pending!!!")
                 break
         # print("pending: {}".format(pending))
         for user in pending:
@@ -252,12 +252,17 @@ def CheckMatchRate(guessMap, trueMap):
     matchResult["hit"] = 0
     matchResult["total"] = 0
     
+    # print(guessMap)
+    
     for guessUser in guessMap:
+        # print("{}".format(guessUser))
         if guessUser in trueMap:
-            matchResult["total"] + 1
+            # print("is in trueMap")
+            matchResult["total"] = matchResult["total"] + 1
             if guessMap[guessUser] == trueMap[guessUser]:
                 matchResult["hit"] = matchResult["hit"] + 1
     
+    # print(matchResult["hit"])
     matchResult["rate"] = matchResult["hit"] / matchResult["total"]
     
     return matchResult

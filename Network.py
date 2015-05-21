@@ -19,9 +19,12 @@ def ReadEdgeListCSV(fileName, delimiter = ','):
 
         for row in csvTable:
             gQtMainWindow.updateInterface()
-            if not row[0] in edgeList:
-                edgeList[row[0]] = []
-            edgeList[row[0]].append(row[1])
+            if row[0] not in edgeList:
+                edgeList[row[0]] = set()
+            edgeList[row[0]].add(row[1])
+            if row[1] not in edgeList:
+                edgeList[row[1]] = set()
+            edgeList[row[1]].add(row[0])
 
     try:
         del(edgeList['Source'])
