@@ -160,7 +160,7 @@ def LoadNetworkData(filePath, delimiter = ','):
     networkDataSet["nodeMapping"], networkDataSet["reverseMapping"] = ReadMappingCSV(filePath['NodeMappingFile'], delimiter)
     
     if filePath["TrueMapFile"] != "":
-        networkDataSet["trueNodeMapping"], networkDataSet["trueReverseMapping"] = ReadMappingCSV(filePath["TrueMapFile"])
+        networkDataSet["trueNodeMapping"], networkDataSet["trueReverseMapping"] = ReadMappingCSV(filePath["TrueMapFile"], delimiter)
 
 
     return networkDataSet

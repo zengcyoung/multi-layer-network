@@ -23,8 +23,12 @@ class Candidate:
         self.friendCount = self.friendCount + 1
 
 def AddPending(net, mapping, userList, pending, nextRound, knownRate):
+    global gQtMainWindow
     for user in userList:
+        gQtMainWindow.updateInterface()
         numExistFriend = 0
+        if not user in net:
+            continue
         for userFriend in net[user]:
             if userFriend in mapping:
                 numExistFriend = numExistFriend + 1
@@ -48,19 +52,19 @@ def UserLink(net1, net2, origMap,
     AddPending(net1, origMap, sampleUserNet1, pending, nextRound,
             knownFriendRate)
     
-    print("net1: {}".format(net1))
-    print("net2: {}".format(net2))
+    # print("net1: {}".format(net1))
+    # print("net2: {}".format(net2))
     
     prevPending = []
     samePendingCount = 0
     while True:
+        gQtMainWindow.updateInterface()
         if prevPending == pending:
             samePendingCount += 1
             if samePendingCount == 10000:
-                print("Over 10000 repeated pending!!!")
+                # print("Over 10000 repeated pending!!!")
                 break
-        print("pending: {}".format(pending))
-        gQtMainWindow.updateInterface()
+        # print("pending: {}".format(pending))
         for user in pending:
             gQtMainWindow.updateInterface() 
             # 为用户创建词典
@@ -68,20 +72,25 @@ def UserLink(net1, net2, origMap,
                 candidate[user] = {}
                 candidate[user]["subcandidate"] = {}
             # 将用户与2网络中的所有样本用户进行比较
-            print("candidate: {}".format(candidate))
+            # print("candidate: {}".format(candidate))
             for compareUser in sampleUserNet2:
                 # 如果2网络的样本用户被选中过，则忽略
-                print("net2Selected: {}".format(net2Selected))
+                # print("net2Selected: {}".format(net2Selected))
                 if compareUser in net2Selected:
+                    continue
+                # 如果compareUser不在net2，跳过（这种情况
+                # 会发生在用户在mapping中但是他在网络2只
+                # 作为Target而不作为Source
+                if compareUser not in net2:
                     continue
                 # 遍历user的好友，
                 # 如果他的好友和在2网络中的样本用户近似，
                 # 把那个2网络中的样本用户加入候选人列表
                 # 并且每当这个候选人多一个相同好友，
                 # 好友计数器加1
-                print("usingMap: {}".format(usingMap))
+                # print("usingMap: {}".format(usingMap))
                 for friend in net1[user]:
-                    print("friend: {}".format(friend))
+                    # print("friend: {}".format(friend))
                     if friend in usingMap:
                         if usingMap[friend] in net2[compareUser]:
                             if not compareUser in candidate[user]["subcandidate"]:
@@ -105,20 +114,20 @@ def UserLink(net1, net2, origMap,
             candidate[user]["primary"] = candidate[user]["list"].pop(0)
         
         selectedCandidate = {}
-        print("candidate: {}".format(candidate))
+        # print("candidate: {}".format(candidate))
         # 现在可以进行用户映射，不断去除candidate中重复的primary
-        print("Deleting duplicated primary")
+        # print("Deleting duplicated primary")
         while len(candidate) != len(selectedCandidate):
             # 选取candidate中的一个用户，将它与candidate中
             # 的其余用户的primary进行比较，如果没有重复
             # 则将它列入guessMap1To2，而且从candidate中删除
             # 如果有重复，则将它列入竞争队列
-            print("selectedCandidate: {}".format(selectedCandidate))
+            # print("selectedCandidate: {}".format(selectedCandidate))
             for user in candidate:
-                print("{}'s candidate is being watched".format(user))
+                # print("{}'s candidate is being watched".format(user))
                 # 如果用户被标记为删除，则跳过
                 if user in selectedCandidate:
-                    print("but {} is in the selectedCandidate".format(user))
+                    # print("but {} is in the selectedCandidate".format(user))
                     continue
                 # 竞争队列
                 competeList = [user]
@@ -134,7 +143,7 @@ def UserLink(net1, net2, origMap,
                     if candidate[user]["primary"].name == candidate[cmpUser]["primary"].name:
                         competeList.append(cmpUser)
                 
-                print("competeList: {}".format(competeList))
+                # print("competeList: {}".format(competeList))
 
                 # 存在竞争用户，开始比较谁的大
                 sameCountCompetitor = {}
@@ -168,9 +177,9 @@ def UserLink(net1, net2, origMap,
                     net2Selected[candidate[leastCandidateUser]["primary"].name] = 1
                     selectedCandidate[leastCandidateUser] = True
                     
-                    print("candidate competition is over")
-                    print("{} is the winner with score {}".format(leastCandidateUser, leastCandidateCount))
-                    print("guessMap1To2: {}".format(guessMap1To2))
+                    # print("candidate competition is over")
+                    # print("{} is the winner with score {}".format(leastCandidateUser, leastCandidateCount))
+                    # print("guessMap1To2: {}".format(guessMap1To2))
                     
                     # 从竞争列表中删除赢家
                     for i in range(len(competeList)):
@@ -178,7 +187,7 @@ def UserLink(net1, net2, origMap,
                             del(competeList[i])
                             break
                     
-                    print("rest competitor: {}".format(competeList))
+                    # print("rest competitor: {}".format(competeList))
 
                     for restUser in competeList:
                         # 如果没有其他候选人了，送入nextRound
@@ -190,11 +199,11 @@ def UserLink(net1, net2, origMap,
                             candidate[restUser]["primary"] = candidate[restUser]["list"].pop(0)
                 # 不存在竞争用户，直接送入guessMap1To2
                 else:
-                    print("{} doesn't have competitor".format(user))
+                    # print("{} doesn't have competitor".format(user))
                     guessMap1To2[user] = candidate[user]["primary"].name
                     net2Selected[candidate[user]["primary"].name] = 1
                     selectedCandidate[user] = True
-                    print("guessMap1To2: {}".format(guessMap1To2))
+                    # print("guessMap1To2: {}".format(guessMap1To2))
 
         # 将guessMap1To2与usingMap合并
         # 并清空guessMap
@@ -202,8 +211,8 @@ def UserLink(net1, net2, origMap,
             usingMap[newUser] = guessMap1To2[newUser]
             resultMap[newUser] = guessMap1To2[newUser]
         
-        print("usingMap: {}".format(usingMap))
-        print("resultMap: {}".format(resultMap))
+        # print("usingMap: {}".format(usingMap))
+        # print("resultMap: {}".format(resultMap))
         
         # 如果nextRound清空了，则退出循环
         # 否则将nextRound赋值给pending并清空自身
@@ -241,11 +250,12 @@ def LoadSampleList(sampleListPath):
 def CheckMatchRate(guessMap, trueMap):
     matchResult = {}
     matchResult["hit"] = 0
-    matchResult["total"] = len(trueMap)
+    matchResult["total"] = 0
     
-    for trueUser in trueMap:
-        if trueUser in guessMap:
-            if guessMap[trueUser] == trueMap[trueUser]:
+    for guessUser in guessMap:
+        if guessUser in trueMap:
+            matchResult["total"] + 1
+            if guessMap[guessUser] == trueMap[guessUser]:
                 matchResult["hit"] = matchResult["hit"] + 1
     
     matchResult["rate"] = matchResult["hit"] / matchResult["total"]
