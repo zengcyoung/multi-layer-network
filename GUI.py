@@ -86,6 +86,8 @@ class MainWindow(QMainWindow):
                 self.browseList1File)
         browseList2Button = self.createButton(_('Browse'),
                 self.browseList2File)
+        browseTrueMapButton = self.createButton(_('Browse'),
+                self.browseTrueMapFile)
         browseNetworkFlatButton = self.createButton(_('Browse'),
                 self.browseNetworkFlatFile)
         generateNetworkFlatButton = self.createButton(
@@ -99,6 +101,7 @@ class MainWindow(QMainWindow):
         self.networkFlatPathComboBox = self.createComboBox()
         self.sampleUser1PathComboBox = self.createComboBox()
         self.sampleUser2PathComboBox = self.createComboBox()
+        self.trueMapPathComboBox = self.createComboBox()
         self.delimiterComboBox = self.createComboBox('\\t')
         self.delimiterComboBox.addItem(',')
         self.bfsLevelComboBox = self.createComboBox('2')
@@ -111,6 +114,7 @@ class MainWindow(QMainWindow):
         networkMappingLabel = QLabel(_('Network mapping:'))
         sampleUser1Label = QLabel(_("Sample user list 1:"))
         sampleUser2Label = QLabel(_("Sample user list 2:"))
+        trueMapLabel = QLabel(_("True map: "))
         networkFlatLabel = QLabel(_('Flat network:'))
         delimiterLabel = QLabel(_('CSV delimiter:'))
         bfsLevelLabel = QLabel(_('BFS level:'))
@@ -150,26 +154,30 @@ class MainWindow(QMainWindow):
         mainLayout.addWidget(sampleUser2Label, 4, 0)
         mainLayout.addWidget(self.sampleUser2PathComboBox, 4, 1, 1, 4)
         mainLayout.addWidget(browseList2Button, 4, 5, 1, 2)
-
-        mainLayout.addWidget(networkFlatLabel, 5, 0)
-        mainLayout.addWidget(self.networkFlatPathComboBox, 5, 1, 1, 4)
-        mainLayout.addWidget(browseNetworkFlatButton, 5, 5, 1, 2)
-
-        mainLayout.addWidget(delimiterLabel, 6, 0, 1, 1)
-        mainLayout.addWidget(self.delimiterComboBox, 6, 1, 1, 1)
-        mainLayout.addWidget(bfsLevelLabel, 6, 2, 1, 1)
-        mainLayout.addWidget(self.bfsLevelComboBox , 6, 3, 1, 2)
-        mainLayout.addWidget(generateNetworkFlatButton, 6, 5, 1, 2)
-
-        mainLayout.addWidget(userLinkButton, 6, 7, 1, 2)
         
-        mainLayout.addWidget(self.infoCheckBox, 7, 0, 1, 1)
-        mainLayout.addWidget(self.warnCheckBox, 7, 1, 1, 1)
-        mainLayout.addWidget(self.fatalCheckBox, 7, 2, 1, 1)
-        mainLayout.addWidget(self.importantCheckBox, 7, 3, 1, 1)
-        mainLayout.addWidget(self.verboseCheckBox, 7, 4, 1, 1)
+        mainLayout.addWidget(trueMapLabel, 5, 0)
+        mainLayout.addWidget(self.trueMapPathComboBox, 5, 1, 1, 4)
+        mainLayout.addWidget(browseTrueMapButton, 5, 5, 1, 2)
 
-        mainLayout.addWidget(self.logTextBox, 8, 0, 5, 7)
+        mainLayout.addWidget(networkFlatLabel, 6, 0)
+        mainLayout.addWidget(self.networkFlatPathComboBox, 6, 1, 1, 4)
+        mainLayout.addWidget(browseNetworkFlatButton, 6, 5, 1, 2)
+
+        mainLayout.addWidget(delimiterLabel, 7, 0, 1, 1)
+        mainLayout.addWidget(self.delimiterComboBox, 7, 1, 1, 1)
+        mainLayout.addWidget(bfsLevelLabel, 7, 2, 1, 1)
+        mainLayout.addWidget(self.bfsLevelComboBox , 7, 3, 1, 2)
+        mainLayout.addWidget(generateNetworkFlatButton, 7, 5, 1, 2)
+
+        mainLayout.addWidget(userLinkButton, 7, 7, 1, 2)
+        
+        mainLayout.addWidget(self.infoCheckBox, 8, 0, 1, 1)
+        mainLayout.addWidget(self.warnCheckBox, 8, 1, 1, 1)
+        mainLayout.addWidget(self.fatalCheckBox, 8, 2, 1, 1)
+        mainLayout.addWidget(self.importantCheckBox, 8, 3, 1, 1)
+        mainLayout.addWidget(self.verboseCheckBox, 8, 4, 1, 1)
+
+        mainLayout.addWidget(self.logTextBox, 9, 0, 5, 7)
 
         widget = QWidget()
         self.setCentralWidget(widget)
@@ -265,6 +273,18 @@ class MainWindow(QMainWindow):
 
             self.sampleUser2PathComboBox.setCurrentIndex(
                     self.sampleUser2PathComboBox.findText(list2FilePath[0]))
+    
+    def browseTrueMapFile(self):
+        trueMapFilePath = QFileDialog.getOpenFileName(
+                self, _('True mapping CSV File'),
+                QDir.currentPath(), 'Comma-separated values (*.csv)')
+
+        if trueMapFilePath:
+            if self.trueMapPathComboBox.findText(trueMapFilePath[0]) == -1:
+                self.trueMapPathComboBox.addItem(trueMapFilePath[0])
+
+            self.trueMapPathComboBox.setCurrentIndex(
+                    self.trueMapPathComboBox.findText(trueMapFilePath[0]))
 
     def browseNetworkMappingFile(self):
         fileNetworkMappingPath = QFileDialog.getOpenFileName(
@@ -325,6 +345,7 @@ class MainWindow(QMainWindow):
         filePath['SecondNetFile'] = self.network2PathComboBox.currentText()
         filePath['NodeMappingFile'] = self.networkMappingPathComboBox.currentText()
         filePath['OutputFile'] = self.networkFlatPathComboBox.currentText()
+        filePath['TrueMapFile'] = self.trueMapPathComboBox.currentText()
 
         return filePath
 
@@ -386,6 +407,7 @@ if __name__ == '__main__':
     window = MainWindow()
     MessageSystem.Init(window)
     Network.Init(window)
+    Guess.Init(window)
     window.show()
     sys.exit(app.exec_())
 

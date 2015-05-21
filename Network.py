@@ -158,6 +158,9 @@ def LoadNetworkData(filePath, delimiter = ','):
 
     MessageSystem.Info(_('Reading node mapping...'))
     networkDataSet["nodeMapping"], networkDataSet["reverseMapping"] = ReadMappingCSV(filePath['NodeMappingFile'], delimiter)
+    
+    if filePath["TrueMapFile"] != "":
+        networkDataSet["trueNodeMapping"], networkDataSet["trueReverseMapping"] = ReadMappingCSV(filePath["TrueMapFile"])
 
 
     return networkDataSet
